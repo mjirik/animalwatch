@@ -1,0 +1,9 @@
+frames:
+  15:
+  - {x1: 14, x2: 26, y1: 78, y2: 98}
+  16:
+  - {x1: 141, x2: 267, y1: 198, y2: 325}
+  - {x1: 141, x2: 267, y1: 198, y2: 325}
+note: ''
+path: cesta_k_souboru/video21.avi
+team: [Miroslav Jirik, Ivan Gruber]
