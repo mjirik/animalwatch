@@ -68,7 +68,7 @@ test:
 about:
   home: https://github.com/mjirik/anwa
   license: MIT
-  summary: Automatic animal detection
+  summary: Automatic detection of animals in cvideo
 
 # See
 # http://docs.continuum.io/conda/build.html for

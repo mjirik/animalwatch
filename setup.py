@@ -10,7 +10,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='anwa',
-    description='Automatic animal detection',
+    description='Automatic detection of animals in cvideo',
     long_description=long_description,
     long_description_content_type="text/markdown",
     # Versions should comply with PEP440.  For a discussion on single-sourcing
