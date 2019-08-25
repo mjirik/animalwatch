@@ -6,5 +6,5 @@
 
 anwa
 
-Automatic detection of animals in cvideo
+Automatic animal detection in video
 

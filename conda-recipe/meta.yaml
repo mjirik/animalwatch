@@ -16,6 +16,7 @@ source:
    # - fix.patch
 
 build:
+  noarch: python
   ignore_prefix_files:
     - devel
     - examples
@@ -68,7 +69,7 @@ test:
 about:
   home: https://github.com/mjirik/anwa
   license: MIT
-  summary: Automatic detection of animals in cvideo
+  summary: Automatic animal detection in video
 
 # See
 # http://docs.continuum.io/conda/build.html for
