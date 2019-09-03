@@ -5,3 +5,5 @@ matplotlib
 imageio # -c conda-forge
 scikit-image
 imageio-ffmpeg
+io3d
+pyqtgraph
