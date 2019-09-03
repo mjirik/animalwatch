@@ -72,38 +72,9 @@ class AnimalWatch:
                 "name": "Input",
                 "type": "group",
                 "children": [
-                    {"name": "File Path", "type": "str"},
+                    {"name": "Dir Path", "type": "str"},
                     {"name": "Select", "type": "action"},
-                    {
-                        "name": "Annotation Color",
-                        "type": "list",
-                        "values": {
-                            "None": None,
-                            "White": "#FFFFFF",
-                            "Black": "#000000",
-                            "Red": "#FF0000",
-                            "Green": "#00FF00",
-                            "Blue": "#0000FF",
-                            "Cyan": "#00FFFF",
-                            "Magenta": "#FF00FF",
-                            "Yellow": "#FFFF00",
-                        },
-                        "value": 0,
-                    },
-                    # {'name': 'Boolean', 'type': 'bool', 'value': True, 'tip': "This is a checkbox"},
-                    # {'name': 'Color', 'type': 'color', 'value': "FF0", 'tip': "This is a color button"},
                     {"name": "Data Info", "type": "str", "readonly": True},
-                    # BatchFileProcessingParameter(
-                    #     name="Batch processing", children=[]
-                    # ),
-                    # {
-                    #     "name": "Advanced",
-                    #     "type": "group",
-                    #     "children": [
-                    #         dict(name="Ignore not found color",type="bool", value=False,
-                    #              tip="No exception thrown if color not found in the data"),
-                    #     ]
-                    # }
                 ],
             },
             {
@@ -116,14 +87,14 @@ class AnimalWatch:
                         "value": self._prepare_default_output_dir(),
                     },
                     {"name": "Select", "type": "action"},
-                    {
-                        "name": "Common Spreadsheet File",
-                        "type": "str",
-                        "value": common_spreadsheet_file,
-                    },
-                    {"name": "Select Common Spreadsheet File", "type": "action",
-                     "tip": "All measurements are appended to this file in addition to data stored in Output Directory Path."
-                     },
+                    # {
+                    #     "name": "Common Spreadsheet File",
+                    #     "type": "str",
+                    #     "value": common_spreadsheet_file,
+                    # },
+                    # {"name": "Select Common Spreadsheet File", "type": "action",
+                    #  "tip": "All measurements are appended to this file in addition to data stored in Output Directory Path."
+                    #  },
                 ],
             },
             {
@@ -181,7 +152,7 @@ class AnimalWatch:
         default_dir = io3d.datasets.join_path("results", "anwa", get_root=True)
         return default_dir
 
-    def select_file_gui(self):
+    def select_input_dir_gui(self):
         from PyQt5 import QtWidgets
 
         default_dir = io3d.datasets.join_path(get_root=True)
@@ -189,17 +160,17 @@ class AnimalWatch:
         if not op.exists(default_dir):
             default_dir = op.expanduser("~")
 
-        fn, mask = QtWidgets.QFileDialog.getOpenFileName(
+        fn = QtWidgets.QFileDialog.getExistingDirectory(
             None,
             "Select Input File",
             directory=default_dir,
-            filter="NanoZoomer Digital Pathology Image(*.ndpi)",
+            # filter="NanoZoomer Digital Pathology Image(*.ndpi)",
         )
-        self.set_input_file(fn)
+        self.set_input_dir(fn)
 
-    def set_input_file(self, fn):
+    def set_input_dir(self, fn):
         fn = str(fn)
-        fnparam = self.parameters.param("Input", "File Path")
+        fnparam = self.parameters.param("Input", "Dir Path")
         fnparam.setValue(fn)
         logger.debug("Set Input File Path to : {}".format(fn))
         # import pdb; pdb.set_trace()
@@ -251,7 +222,7 @@ class AnimalWatch:
             qapp = QtWidgets.QApplication(sys.argv)
 
         self.parameters.param("Input", "Select").sigActivated.connect(
-            self.select_file_gui
+            self.select_input_dir_gui
         )
         self.parameters.param("Output", "Select").sigActivated.connect(
             self.select_output_dir_gui
@@ -272,7 +243,7 @@ class AnimalWatch:
         # print("run scaffan")
         win = QtGui.QWidget()
         win.setWindowTitle("ScaffAn {}".format(anwa.__version__))
-        logo_fn = op.join(op.dirname(__file__), "scaffan_icon256.png")
+        logo_fn = op.join(op.dirname(__file__), "anwa.png")
         app_icon = QtGui.QIcon()
         # app_icon.addFile(logo_fn, QtCore.QSize(16, 16))
         app_icon.addFile(logo_fn)
