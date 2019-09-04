@@ -13,22 +13,48 @@ from exsu.report import Report
 
 
 
-datapath = op.expanduser("~/data/lynx_lynx/fotopasti_20170825/videa/s rysem/**/**")
+# datapath = op.expanduser("~/data/lynx_lynx/fotopasti_20170825/videa/s rysem/**/**")
 
 
 class ActivityDetector:
     def __init__(self, report=None):
         params = [
-            # {
-            #     "name": "Working Resolution",
-            #     "type": "float",
-            #     # "value": 0.000001,
-            #     # "value": 0.0000005,
-            #     "value": 0.0000004,
-            #     "suffix": "m",
-            #     "siPrefix": True
-            #
-            # },
+            {
+                "name": "Activity Video Cut Threshold",
+                "type": "float",
+                "value": 1.0,
+                'tip': "Applied on activity frames cropping out frames without activity",
+                "suffix": "%",
+                "siPrefix": False
+
+            },
+            {
+                "name": "Activity Crop Threshold",
+                "type": "float",
+                "value": 0.1,
+                'tip': "Applied on activity frames filtered by time and space"
+                # "suffix": "",
+                # "siPrefix": True
+
+            },
+            {
+                "name": "Start Frame Offset",
+                "type": "int",
+                "value": 1,
+                'tip': "ignore first few frames"
+                # "suffix": "",
+                # "siPrefix": True
+
+            },
+            {
+                "name": "End Frame Offset",
+                "type": "int",
+                "value": 0,
+                'tip': "ignore last few frames"
+                # "suffix": "",
+                # "siPrefix": True
+
+            },
             # {
             #     "name": "GLCM Levels",
             #     "type": "int",
@@ -47,14 +73,16 @@ class ActivityDetector:
         :param input_path: can be with '~' for home dir and with /**/* for any subdir
         :return:
         """
-        self.input_path = input_path
+        self.input_path = Path(input_path)
 
     def set_output_path(self, output_path):
-        self.output_path = output_path
+        self.output_path = Path(output_path)
 
 
     def run(self):
-        fnvideos = glob.glob(op.join(op.expanduser(datapath), "*"))
+        logger.debug(f"Reading files in dir: {self.input_path}")
+        fnvideos = glob.glob(op.join(op.expanduser(self.input_path), "*"))
+        logger.debug(f"number files in dir: {len(fnvideos)}")
         for fn in fnvideos:
             plt.figure(figsize=(14, 8))
             try:
@@ -81,63 +109,113 @@ class ActivityDetector:
                 f"min: {np.min(background_model)}, mean: {np.mean(background_model)}, max: {np.max(background_model)}")
             report.imsave(f"{fn.stem}_background", background_model / 255.0, level=50)
         logger.debug("activity estimation")
-        error, time, errmax = activity_estimation(vid, background_model)
+        begin_offset = int(self.parameters.param("Start Frame Offset").value())
+        end_offset = int(self.parameters.param("End Frame Offset").value())
+        # end_offset = 10
+        error, time, errmax = activity_estimation(vid, background_model, begin_offset=begin_offset, end_offset=end_offset)
+        import scipy
+        error_filt = scipy.signal.medfilt(error, 5)
         if report is not None:
             fig = plt.figure()
-            plt_activity(time, error)
+            self.plt_activity(time, error, error_filt=error_filt)
             report.savefig_and_show(fn.stem + "_activity", fig)
         frame, iframe = get_max_image(vid, error)
         if report is not None:
-            report.imsave(f"{fn.stem}_maxframe", frame, level=50)
+            report.imsave(f"{fn.stem}_maxframe", frame, level=50, level_skimage=10)
         errim = get_activity_diff_image(frame, background_model)
         if report is not None:
-            report.imsave(f"{fn.stem}_errim", errim, level=45)
+            report.imsave(f"{fn.stem}_errim", errim, level=45, level_skimage=10)
         #     return background_model, error, time, errmax, image, imax
         filtered_activity = activity_filter_time_and_space(vid, iframe, background_model)
-        roi = activity_roi(filtered_activity)
+        if report is not None:
+
+            report.imsave(f"{fn.stem}_filtered_activity", filtered_activity, level=40, level_skimage=10)
+            fig = plt.figure()
+            plt.imshow(filtered_activity)
+            plt.colorbar()
+            report.savefig_and_show(f"{fn.stem}_filtered_activity_fig", fig, level=40)
+
+        thr = float(self.parameters.param("Activity Crop Threshold").value())
+        roi = activity_roi(filtered_activity, activity_threshold=thr)
         if roi is not None:
             cropped_frame = crop_frame(frame, *roi)
-        if report is not None:
-            report.imsave(f"{fn.stem}_max_activity_crop", filtered_activity, level=60)
+            if report is not None:
+                report.imsave(f"{fn.stem}_max_activity_crop", cropped_frame, level=60)
 
-        logger.debug("visualization")
-        # def visualization(vid, background_model, error, time, errmax):
-        plt.subplot(321)
-        plt.imshow(background_model.astype(np.uint8))
-        plt.axis("off")
-        plt.title("background model")
+        self._cut_video(vid, fn, error_filt)
+
+
+    def _cut_video(self, vid, fn:Path, error):
+
+        thr = float(self.parameters.param("Activity Video Cut Threshold").value()) * 0.01
+        reader = vid
+        # reader = imageio.get_reader('imageio:cockatoo.mp4')
+        fps = reader.get_meta_data()['fps']
+
+        opath = self.output_path/(fn.stem + "_cut" + fn.suffix)
+
+        writer = imageio.get_writer(opath, fps=fps)
+        logger.info(f"write video: {str(opath)}")
+        logger.debug(f"video cut threshold: {thr} ")
+
+        i = int(self.parameters.param("Start Frame Offset").value())
+        for im in reader:
+            if i < len(error):
+                if error[i] > thr:
+                    writer.append_data(im)  # [:, :, 1])
+                    # pass
+            i += 1
+        writer.close()
+
+    def plt_activity(self, time, error, error_filt=None):
+        thr_percent = float(self.parameters.param("Activity Video Cut Threshold").value())
+        plt.semilogy(time, 100 * (error))
+        if error_filt is not None:
+            plt.semilogy(time, 100 * (error_filt), "g")
+        # plt.ylim(base, 1+base)
+        plt.ylim(1, 100)
+        plt.axhline(thr_percent)
+        plt.xlabel("Time [s]")
+        plt.ylabel("Activity [%]")
+
+        # logger.debug("visualization")
+        # # def visualization(vid, background_model, error, time, errmax):
+        # plt.subplot(321)
+        # plt.imshow(background_model.astype(np.uint8))
+        # plt.axis("off")
+        # plt.title("background model")
+        # # plt.colorbar()
+        #
+        # plt.subplot(322)
+        # plt_activity(time, error)
+        #
+        # plt.subplot(323)
+        # plt.imshow(frame)
+        # plt.axis("off")
+        # plt.title('image #{}'.format(iframe))
+        #
+        # plt.subplot(324)
+        # plt.imshow(errim)
+        # plt.axis("off")
+        # plt.title("difference image")
+        #
+        # plt.subplot(325)
+        # plt.imshow(filtered_activity)
         # plt.colorbar()
-
-        plt.subplot(322)
-        plt_activity(time, error)
-
-        plt.subplot(323)
-        plt.imshow(frame)
-        plt.axis("off")
-        plt.title('image #{}'.format(iframe))
-
-        plt.subplot(324)
-        plt.imshow(errim)
-        plt.axis("off")
-        plt.title("difference image")
-
-        plt.subplot(325)
-        plt.imshow(filtered_activity)
-        plt.colorbar()
-        if roi is not None:
-            show_roi(*roi)
-        #     plt.imshow()
-        plt.axis("off")
-        plt.title("filtered activity and ROI")
-
-        plt.subplot(326)
+        # if roi is not None:
+        #     show_roi(*roi)
+        # #     plt.imshow()
+        # plt.axis("off")
+        # plt.title("filtered activity and ROI")
+        #
+        # plt.subplot(326)
         #     show_roi(roi_min, roi_size, image=filtered_activity)
-        if roi is not None:
-            plt.imshow(cropped_frame)
-        plt.axis("off")
-        plt.title("Activity crop")
+        # if roi is not None:
+        #     plt.imshow(cropped_frame)
+        # plt.axis("off")
+        # plt.title("Activity crop")
 
-        plt.suptitle(fn)
+        # plt.suptitle(fn)
 
     # def run_one(self, fn:Path):
     #     data_processing(str(fn))
@@ -192,7 +270,9 @@ def create_background_model(vid, begin_offset=1, end_offset=50, step=10):
     return background_model, frame_size
 
 
-def activity_estimation(vid, background_model, begin_offset=1, end_offset=10, step=1):
+def activity_estimation(vid, background_model, begin_offset=0, end_offset=0, step=1):
+    # error = np.zeros([vid.count_frames()])
+    # error = [0.0] * vid.count_frames()
     error = []
 
     fps = vid.get_meta_data()['fps']
@@ -206,6 +286,7 @@ def activity_estimation(vid, background_model, begin_offset=1, end_offset=10, st
         #     print(num)
         image = vid.get_data(num).astype(np.float)
         err = np.sum(np.abs(background_model - image))
+        # error[num] = err
         error.append(err)
 
     time = np.asarray(nums) / fps
@@ -213,12 +294,17 @@ def activity_estimation(vid, background_model, begin_offset=1, end_offset=10, st
     return error, time, errmax
 
 
+
+
 import skimage.filters
 from skimage.morphology import disk
 
 
-def get_max_image(vid, error, begin_offset=1):
-    imax = np.argmax(error)
+def get_max_image(vid, error, begin_offset=1, end_offset=10):
+    import copy
+    error2 = copy.copy(error)
+    error2[-end_offset:] = 0
+    imax = np.argmax(error2)
     image = get_image(vid, imax, begin_offset)
     return image, imax
 
@@ -226,13 +312,6 @@ def get_max_image(vid, error, begin_offset=1):
 def get_image(vid, imax, begin_offset=1):
     return vid.get_data(imax + begin_offset)
 
-
-def plt_activity(time, error):
-    plt.semilogy(time, 100 * (error))
-    # plt.ylim(base, 1+base)
-    plt.ylim(1, 100)
-    plt.xlabel("Time [s]")
-    plt.ylabel("Activity [%]")
 
 
 def get_activity_diff_image(image, background_model, safety_multiplicator=0.99):

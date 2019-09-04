@@ -80,7 +80,7 @@ class AnimalWatch:
                 "name": "Input",
                 "type": "group",
                 "children": [
-                    {"name": "Dir Path", "type": "str"},
+                    {"name": "Directory Path", "type": "str"},
                     {"name": "Select", "type": "action"},
                     {"name": "Data Info", "type": "str", "readonly": True},
                     {"name": "Camera ID", "type": "str"}
@@ -192,7 +192,7 @@ class AnimalWatch:
 
     def set_input_dir(self, fn):
         fn = str(fn)
-        fnparam = self.parameters.param("Input", "Dir Path")
+        fnparam = self.parameters.param("Input", "Directory Path")
         fnparam.setValue(fn)
         logger.debug("Set Input File Path to : {}".format(fn))
         # import pdb; pdb.set_trace()
@@ -235,15 +235,18 @@ class AnimalWatch:
     def run(self):
 
         odir = str(self.parameters.param("Output", "Directory Path").value())
-         # = str(self.parameters.param("Output", "Directory Path").value())
-        self.report.level = 40
+        idir = str(self.parameters.param("Input", "Directory Path").value())
+        # = str(self.parameters.param("Output", "Directory Path").value())
+        # odir = float(self.parameters.param("Output", "Directory Path").value())
+        self.report.level = 30
 
         logger.debug(f"output dir {odir}")
         self.report.init_with_output_dir(odir)
         # self.report.outputdir = odir
         Path(odir).mkdir(parents=True, exist_ok=True)
+        self.activity_detector.set_input_path(idir)
+        self.activity_detector.set_output_path(odir)
         self.activity_detector.run()
-        pass
 
     def start_gui(self, skip_exec=False, qapp=None):
 
