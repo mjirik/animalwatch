@@ -7,11 +7,11 @@ Modul is used for GUI of Lisa
 from loguru import logger
 
 # from scaffan import image
+from pathlib import Path
 import sys
 import os.path as op
 import datetime
-from pathlib import Path
-import io3d.misc
+# import io3d.misc
 from io3d import cachefile
 import json
 import time
@@ -32,7 +32,11 @@ import pyqtgraph.widgets
 
 import io3d
 import io3d.datasets
-import exsu.report
+pth = str(Path(__file__).parent / "../../exsu/")
+logger.debug(f"exsu path: {pth}")
+sys.path.insert(0, pth)
+import exsu
+logger.debug(f"exsu path 2: {exsu.__file__}")
 from exsu.report import Report
 
 # import scaffan.lobulus
@@ -41,12 +45,14 @@ from exsu.report import Report
 # from .report import Report
 # import scaffan.evaluation
 # from scaffan.pyqt_widgets import BatchFileProcessingParameter
+from . import activity_detector
 
 
 class AnimalWatch:
     def __init__(self):
 
-        self.report: Report = exsu.report.Report()
+        self.report: exsu.report.Report = exsu.report.Report()
+        self.report.set_save(True)
         # self.report.level = 50
 
         self.raise_exception_if_color_not_found = True
@@ -61,6 +67,8 @@ class AnimalWatch:
         # self.glcm_textures.set_report(self.report)
         # self.skeleton_analysis.set_report(self.report)
         # self.evaluation.report = self.report
+        self.activity_detector:activity_detector.ActivityDetector = activity_detector.ActivityDetector(
+            report=self.report)
         self.win:QtGui.QWidget = None
         self.cache = cachefile.CacheFile("~/.exsu_cache.yaml")
         # self.cache.update('', path)
@@ -75,6 +83,7 @@ class AnimalWatch:
                     {"name": "Dir Path", "type": "str"},
                     {"name": "Select", "type": "action"},
                     {"name": "Data Info", "type": "str", "readonly": True},
+                    {"name": "Camera ID", "type": "str"}
                 ],
             },
             {
@@ -103,39 +112,45 @@ class AnimalWatch:
                 "children": [
                     # {'name': 'Directory Path', 'type': 'str', 'value': prepare_default_output_dir()},
                     {
-                        "name": "Show",
-                        "type": "bool",
-                        "value": False,
-                        "tip": "Show images",
+                        'name': "Anwa dir",
+                        "type": 'str',
+                        'value': self._prepare_anwa_dir()
                     },
-                    {
-                        "name": "Open output dir",
-                        "type": "bool",
-                        "value": False,
-                        "tip": "Open system window with output dir when processing is finished",
-                    },
-                    {
-                        "name": "Run Skeleton Analysis",
-                        "type": "bool",
-                        "value": True,
-                        # "tip": "Show images",
-                    },
-                    {
-                        "name": "Run Texture Analysis",
-                        "type": "bool",
-                        "value": True,
-                        # "tip": "Show images",
-                    },
-                    {
-                        "name": "Report Level",
-                        "type": "int",
-                        "value": 50,
-                        "tip": "Control ammount of stored images. 0 - all debug imagess will be stored. "
-                               "100 - just important images will be saved.",
-                    },
-                    {"name": "Run", "type": "action"},
+                    self.activity_detector.parameters,
+                    # {
+                    #     "name": "Show",
+                    #     "type": "bool",
+                    #     "value": False,
+                    #     "tip": "Show images",
+                    # },
+                    # {
+                    #     "name": "Open output dir",
+                    #     "type": "bool",
+                    #     "value": False,
+                    #     "tip": "Open system window with output dir when processing is finished",
+                    # },
+                    # {
+                    #     "name": "Run Skeleton Analysis",
+                    #     "type": "bool",
+                    #     "value": True,
+                    #     # "tip": "Show images",
+                    # },
+                    # {
+                    #     "name": "Run Texture Analysis",
+                    #     "type": "bool",
+                    #     "value": True,
+                    #     # "tip": "Show images",
+                    # },
+                    # {
+                    #     "name": "Report Level",
+                    #     "type": "int",
+                    #     "value": 50,
+                    #     "tip": "Control ammount of stored images. 0 - all debug imagess will be stored. "
+                    #            "100 - just important images will be saved.",
+                    # },
                 ],
             },
+            {"name": "Run", "type": "action"},
         ]
         self.parameters = Parameter.create(name="params", type="group", children=params)
         # here is everything what should work with or without GUI
@@ -149,8 +164,12 @@ class AnimalWatch:
         pass
 
     def _prepare_default_output_dir(self):
-        default_dir = io3d.datasets.join_path("results", "anwa", get_root=True)
+        default_dir = io3d.datasets.join_path("lynx_lynx", "processed", "anwa", get_root=True)
         return default_dir
+
+    def _prepare_anwa_dir(self):
+        anwa_dir = Path("~/.anwa")
+        return anwa_dir
 
     def select_input_dir_gui(self):
         from PyQt5 import QtWidgets
@@ -160,9 +179,12 @@ class AnimalWatch:
         if not op.exists(default_dir):
             default_dir = op.expanduser("~")
 
+        # dialog = QtWidgets.QFileDialog()
+        # dialog.setFileMode(QtWidgets.QFileDialog.Directory)
+        # dialog.exec();
         fn = QtWidgets.QFileDialog.getExistingDirectory(
             None,
-            "Select Input File",
+            "Select Input Directory",
             directory=default_dir,
             # filter="NanoZoomer Digital Pathology Image(*.ndpi)",
         )
@@ -204,12 +226,23 @@ class AnimalWatch:
             None,
             "Select Output Directory",
             directory=start_dir,
+            # filter='All Files(*.*)',
             # filter="NanoZoomer Digital Pathology Image(*.ndpi)"
         )
         # print (fn)
         self.set_output_dir(fn)
 
     def run(self):
+
+        odir = str(self.parameters.param("Output", "Directory Path").value())
+         # = str(self.parameters.param("Output", "Directory Path").value())
+        self.report.level = 40
+
+        logger.debug(f"output dir {odir}")
+        self.report.init_with_output_dir(odir)
+        # self.report.outputdir = odir
+        Path(odir).mkdir(parents=True, exist_ok=True)
+        self.activity_detector.run()
         pass
 
     def start_gui(self, skip_exec=False, qapp=None):
@@ -230,19 +263,19 @@ class AnimalWatch:
         # self.parameters.param("Output", "Select Common Spreadsheet File").sigActivated.connect(
         #     self.select_output_spreadsheet_gui
         # )
-        self.parameters.param("Processing", "Run").sigActivated.connect(
+        self.parameters.param("Run").sigActivated.connect(
             self.run
         )
 
-        self.parameters.param("Processing", "Open output dir").setValue(True)
+        # self.parameters.param("Processing", "Open output dir").setValue(True)
         t = ParameterTree()
         t.setParameters(self.parameters, showTop=False)
-        t.setWindowTitle("pyqtgraph example: Parameter Tree")
-        t.show()
+        # t.setWindowTitle("pyqtgraph example: Parameter Tree")
+        # t.show()
 
         # print("run scaffan")
         win = QtGui.QWidget()
-        win.setWindowTitle("ScaffAn {}".format(anwa.__version__))
+        win.setWindowTitle("AnWa {}".format(anwa.__version__))
         logo_fn = op.join(op.dirname(__file__), "anwa.png")
         app_icon = QtGui.QIcon()
         # app_icon.addFile(logo_fn, QtCore.QSize(16, 16))
