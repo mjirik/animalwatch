@@ -31,7 +31,7 @@ class ActivityDetector:
             {
                 "name": "Activity Crop Threshold",
                 "type": "float",
-                "value": 0.1,
+                "value": .3,
                 'tip': "Applied on activity frames filtered by time and space"
                 # "suffix": "",
                 # "siPrefix": True
@@ -107,7 +107,7 @@ class ActivityDetector:
             logger.debug("saving")
             logger.debug(
                 f"min: {np.min(background_model)}, mean: {np.mean(background_model)}, max: {np.max(background_model)}")
-            report.imsave(f"{fn.stem}_background", background_model / 255.0, level=50)
+            report.imsave(f"{fn.stem}_background", background_model / 255.0, level=50, level_skimage=10)
         logger.debug("activity estimation")
         begin_offset = int(self.parameters.param("Start Frame Offset").value())
         end_offset = int(self.parameters.param("End Frame Offset").value())
@@ -140,7 +140,7 @@ class ActivityDetector:
         if roi is not None:
             cropped_frame = crop_frame(frame, *roi)
             if report is not None:
-                report.imsave(f"{fn.stem}_max_activity_crop", cropped_frame, level=60)
+                report.imsave(f"{fn.stem}_max_activity_crop", cropped_frame, level=60, level_skimage=10)
 
         self._cut_video(vid, fn, error_filt)
 
@@ -171,77 +171,15 @@ class ActivityDetector:
         thr_percent = float(self.parameters.param("Activity Video Cut Threshold").value())
         plt.semilogy(time, 100 * (error))
         if error_filt is not None:
-            plt.semilogy(time, 100 * (error_filt), "g")
+            plt.semilogy(time, 100 * (error_filt), "r")
         # plt.ylim(base, 1+base)
-        plt.ylim(1, 100)
-        plt.axhline(thr_percent)
+        plt.ylim(0.1, 100)
+        # plt.hlines([thr_percent])
+        logger.debug(f"thr percent: {thr_percent}")
+        plt.axhline(thr_percent, ls='--')
         plt.xlabel("Time [s]")
         plt.ylabel("Activity [%]")
 
-        # logger.debug("visualization")
-        # # def visualization(vid, background_model, error, time, errmax):
-        # plt.subplot(321)
-        # plt.imshow(background_model.astype(np.uint8))
-        # plt.axis("off")
-        # plt.title("background model")
-        # # plt.colorbar()
-        #
-        # plt.subplot(322)
-        # plt_activity(time, error)
-        #
-        # plt.subplot(323)
-        # plt.imshow(frame)
-        # plt.axis("off")
-        # plt.title('image #{}'.format(iframe))
-        #
-        # plt.subplot(324)
-        # plt.imshow(errim)
-        # plt.axis("off")
-        # plt.title("difference image")
-        #
-        # plt.subplot(325)
-        # plt.imshow(filtered_activity)
-        # plt.colorbar()
-        # if roi is not None:
-        #     show_roi(*roi)
-        # #     plt.imshow()
-        # plt.axis("off")
-        # plt.title("filtered activity and ROI")
-        #
-        # plt.subplot(326)
-        #     show_roi(roi_min, roi_size, image=filtered_activity)
-        # if roi is not None:
-        #     plt.imshow(cropped_frame)
-        # plt.axis("off")
-        # plt.title("Activity crop")
-
-        # plt.suptitle(fn)
-
-    # def run_one(self, fn:Path):
-    #     data_processing(str(fn))
-        # vid = imageio.get_reader(fn)
-        #
-        # # Background model
-        # background_model, frame_size = create_background_model(vid)
-        # fig = plt.figure()
-        # plt.title('background model')
-        # # print(np.min(image), np.max(image))
-        # plt.imshow(background_model.astype(np.uint8))
-        # plt.axis("off")
-        # # plt.colorbar()
-        # plt.show()
-        #
-        # # Activity
-        # error, time, errmax = activity_estimation(vid, background_model)
-        # plt.figure()
-        # plt_activity(time, error)
-        #
-        # # Max activity frame
-        #
-        # image, imax = get_max_image(vid, error)
-        # plt.imshow(image)
-        # plt.axis("off")
-        # plt.title('image #{}'.format(imax))
 
 
 
@@ -359,6 +297,13 @@ def activity_space_filter(time_mean_frame, median_disk_radius=15, gaussian_sigma
 import matplotlib.patches as patches
 
 def activity_filter_time_and_space(vid, iframe, background_model):
+    """
+    Focus on few frames around maximum intensity frame
+    :param vid:
+    :param iframe:
+    :param background_model:
+    :return:
+    """
     im = activity_time_filter(vid, iframe, background_model)
     im = activity_space_filter(im)
     return im
