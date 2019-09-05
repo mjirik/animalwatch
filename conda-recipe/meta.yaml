@@ -41,7 +41,7 @@ requirements:
     - python
     - setuptools
     - numpy
-     - { pin_compatible('io3d', min_pin="x.x", max_pin='x') }
+    - { pin_compatible('io3d', min_pin="x.x", max_pin='x') }
 #    - io3d
     - pyqtgraph
     - pyqt 5
