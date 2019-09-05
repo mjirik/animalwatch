@@ -16,7 +16,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # http://packaging.python.org/en/latest/tutorial.html#version
-    version='0.0.0',
+    version='0.0.4',
     url='https://github.com/mjirik/anwa',
     author='Miroslav Jirik',
     author_email='miroslav.jirik@gmail.com',
@@ -41,7 +41,7 @@ setup(
         # that you indicate whether you support Python 2, Python 3 or both.
         # 'Programming Language :: Python :: 2',
         # 'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 2.7',
         # 'Programming Language :: Python :: 3',
         # 'Programming Language :: Python :: 3.2',
         # 'Programming Language :: Python :: 3.3',
