@@ -46,6 +46,7 @@ requirements:
     - pyqtgraph
     - pyqt 5
     - pywin32 # [win]
+    - click
     # - { pin_compatible('imma', max_pin='x.x') }
 
   run:
@@ -57,6 +58,7 @@ requirements:
     - numpy
     # install icon
     - pywin32 # [win]
+    - click
     # - { pin_compatible('imma', max_pin='x.x') }
     # - numpy
     # - pyqt 4.11.* # [not win]
