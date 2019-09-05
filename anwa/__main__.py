@@ -89,7 +89,7 @@ def install():
         # cmd
         # ln =  "call activate scaffan; {} -m scaffan".format(sys.executable)
         shortcut.TargetPath = sys.executable
-        shortcut.Arguments = "-m scaffan"
+        shortcut.Arguments = "-m anwa"
         # shortcut.TargetPath = cmd
         # shortcut.Arguments = '/C "call activate scaffan & python -m scaffan" '
         shortcut.IconLocation = "{},0".format(logo_fn)
