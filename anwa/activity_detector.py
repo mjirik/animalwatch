@@ -81,7 +81,8 @@ class ActivityDetector:
 
     def run(self):
         logger.debug(f"Reading files in dir: {self.input_path}")
-        fnvideos = glob.glob(op.join(op.expanduser(self.input_path), "*"))
+        # fnvideos = glob.glob(op.join(op.expanduser(self.input_path), "*"))
+        fnvideos = list(Path(op.join(op.expanduser(self.input_path))).glob('**/*'))
         logger.debug(f"number files in dir: {len(fnvideos)}")
         for fn in fnvideos:
             plt.figure(figsize=(14, 8))
@@ -90,8 +91,8 @@ class ActivityDetector:
             # except Exception as e:
             except ValueError as e:
                 import traceback
-                logger.info(f"Problem with processing file: {fn}")
-                logger.warning(traceback.format_exc())
+                logger.warning(f"Problem with processing file: {fn}")
+                logger.debug(traceback.format_exc())
         pass
 
     def run_one(self, fn:Path):
@@ -147,12 +148,18 @@ class ActivityDetector:
 
     def _cut_video(self, vid, fn:Path, error):
 
+        print("cut video")
         thr = float(self.parameters.param("Activity Video Cut Threshold").value()) * 0.01
         reader = vid
         # reader = imageio.get_reader('imageio:cockatoo.mp4')
         fps = reader.get_meta_data()['fps']
+        # import pdb; pdb.set_trace()
+        fnrel = fn.relative_to(self.input_path.expanduser())
+        logger.debug(f"relative path {str(fnrel)}")
 
-        opath = self.output_path/(fn.stem + "_cut" + fn.suffix)
+        opath = self.output_path/fnrel.parent/(fnrel.stem + "_cut" + fn.suffix)
+        logger.debug(f"opath {str(opath)}")
+        opath.parent.mkdir(parents=True, exist_ok=True)
 
         writer = imageio.get_writer(opath, fps=fps)
         logger.info(f"write video: {str(opath)}")
