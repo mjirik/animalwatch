@@ -71,10 +71,10 @@ before_install:
 install:
 
     # - sudo apt-get install -qq $(< apt_requirements.txt)
-    - conda create --yes -n travis pip nose coveralls python=$CONDA_PYTHON_VERSION
+    - conda create --yes -n travis python=$CONDA_PYTHON_VERSION
     - source activate travis
 #    - Install dependencies
-    - conda install --yes --file requirements_conda.txt pytest-cov
+    - conda install --yes --file requirements_conda.txt pytest-cov coveralls
 #    - pip install -r requirements_pip.txt
 #    - "echo $LD_LIBRARY_PATH"
 #    - "pip install -r requirements.txt"

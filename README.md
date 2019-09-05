@@ -4,7 +4,18 @@
 [![PyPI version](https://badge.fury.io/py/anwa.svg)](http://badge.fury.io/py/anwa)
 
 
-anwa
+# anwa
 
 Automatic animal detection in video
 
+
+# Install
+
+* Install [miniconda](https://docs.conda.io/en/latest/miniconda.html) and during install add conda to path
+
+* In command line (`cmd` on Windows) use:
+
+
+    conda create -n anwa -c conda-forge -c mjirik anwa
+    conda activate anwa
+    conda -m anwa install
