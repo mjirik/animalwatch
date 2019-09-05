@@ -40,8 +40,9 @@ requirements:
   build:
     - python
     - setuptools
+    - numpy
      - { pin_compatible('io3d', min_pin="x.x", max_pin='x') }
-    - io3d
+#    - io3d
     - pyqtgraph
     - pyqt 5
     - pywin32 # [win]
@@ -49,9 +50,11 @@ requirements:
 
   run:
     - python
-    - io3d
+#    - io3d
+    - { pin_compatible('io3d', min_pin="x.x", max_pin='x') }
     - pyqtgraph
     - pyqt 5
+    - numpy
     # install icon
     - pywin32 # [win]
     # - { pin_compatible('imma', max_pin='x.x') }
