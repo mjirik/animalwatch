@@ -53,8 +53,8 @@ requirements:
 
   run:
     - python
-#    - io3d
-    - { pin_compatible('io3d', min_pin="x.x", max_pin='x') }
+    - io3d
+#    - { pin_compatible('io3d', min_pin="x.x", max_pin='x') }
     - pyqtgraph
     - pyqt 5
     - numpy
@@ -62,7 +62,8 @@ requirements:
     - pywin32 # [win]
     - click
     - pandas
-    - { pin_compatible('exsu', max_pin='x', min_pin="x.x") }
+    - exsu
+#    - { pin_compatible('exsu', max_pin='x', min_pin="x.x") }
     # - { pin_compatible('imma', max_pin='x.x') }
     # - numpy
     # - pyqt 4.11.* # [not win]
