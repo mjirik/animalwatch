@@ -72,29 +72,32 @@ def gui(params, print_params):
 
 @run.command(context_settings=CONTEXT_SETTINGS, help="Create an icon on Windows platform")
 def install():
+    from .app_tools import create_icon
+    create_icon("anwa", conda_env_name="anwa_app")
     import platform
-    print(platform.system)
-    if platform.system() == "Windows":
-        import pathlib
-        import os.path as op
-        # logo_fn2 = pathlib.Path(__file__).parent / pathlib.Path("scaffan_icon512.ico")
 
-        logo_fn = op.join(op.dirname(__file__), "anwa.ico")
-        import win32com.client
-        shell = win32com.client.Dispatch("WScript.Shell")
-
-        pth = Path.home()
-        pth = pth / "Desktop" / Path("AnWa.lnk")
-        shortcut = shell.CreateShortcut(str(pth))
-        # cmd
-        # ln =  "call activate scaffan; {} -m scaffan".format(sys.executable)
-        shortcut.TargetPath = sys.executable
-        shortcut.Arguments = "-m anwa"
-        # shortcut.TargetPath = cmd
-        # shortcut.Arguments = '/C "call activate scaffan & python -m scaffan" '
-        shortcut.IconLocation = "{},0".format(logo_fn)
-        shortcut.Save()
-    pass
+    # print(platform.system)
+    # if platform.system() == "Windows":
+    #     import pathlib
+    #     import os.path as op
+    #     # logo_fn2 = pathlib.Path(__file__).parent / pathlib.Path("scaffan_icon512.ico")
+    #
+    #     logo_fn = op.join(op.dirname(__file__), "anwa.ico")
+    #     import win32com.client
+    #     shell = win32com.client.Dispatch("WScript.Shell")
+    #
+    #     pth = Path.home()
+    #     pth = pth / "Desktop" / Path("AnWa.lnk")
+    #     shortcut = shell.CreateShortcut(str(pth))
+    #     # cmd
+    #     # ln =  "call activate scaffan; {} -m scaffan".format(sys.executable)
+    #     shortcut.TargetPath = sys.executable
+    #     shortcut.Arguments = "-m anwa"
+    #     # shortcut.TargetPath = cmd
+    #     # shortcut.Arguments = '/C "call activate scaffan & python -m scaffan" '
+    #     shortcut.IconLocation = "{},0".format(logo_fn)
+    #     shortcut.Save()
+    # pass
 
 
 @run.command(context_settings=CONTEXT_SETTINGS)
