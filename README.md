@@ -9,14 +9,33 @@
 Automatic animal detection in video
 
 
-# Install
+# Install on Windows
 
 * Install [miniconda](https://docs.conda.io/en/latest/miniconda.html) and during install add conda to path
+
 
 * In command line (`cmd` on Windows) use:
 
 ```cmd
-conda create -n anwa_app -c conda-forge -c mjirik --yes anwa
+conda create -n anwa_app -c conda-forge -c mjirik --yes anwa pywin32
 conda activate anwa_app
 python -m anwa install
+```
+
+
+# Install on Linux and OsX
+
+* Install [miniconda](https://docs.conda.io/en/latest/miniconda.html) and during install add conda to path
+
+
+* In command line use:
+
+```cmd
+conda create -n anwa_app -c conda-forge -c mjirik --yes anwa
+```
+
+## Run 
+```cmd
+conda activate anwa_app
+python -m anwa
 ```

@@ -11,6 +11,7 @@ from pathlib import Path
 import sys
 import os.path as op
 import datetime
+
 # import io3d.misc
 from io3d import cachefile
 import json
@@ -32,10 +33,12 @@ import pyqtgraph.widgets
 
 import io3d
 import io3d.datasets
+
 pth = str(Path(__file__).parent / "../../exsu/")
 logger.debug(f"exsu path: {pth}")
 sys.path.insert(0, pth)
 import exsu
+
 logger.debug(f"exsu path 2: {exsu.__file__}")
 from exsu.report import Report
 
@@ -67,14 +70,19 @@ class AnimalWatch:
         # self.glcm_textures.set_report(self.report)
         # self.skeleton_analysis.set_report(self.report)
         # self.evaluation.report = self.report
-        self.activity_detector:activity_detector.ActivityDetector = activity_detector.ActivityDetector(
-            report=self.report)
-        self.win:QtGui.QWidget = None
+        self.activity_detector: activity_detector.ActivityDetector = activity_detector.ActivityDetector(
+            report=self.report
+        )
+        self.win: QtGui.QWidget = None
         self.cache = cachefile.CacheFile("~/.exsu_cache.yaml")
         # self.cache.update('', path)
         common_spreadsheet_file = self.cache.get_or_save_default(
-            "common_spreadsheet_file", self._prepare_default_output_common_spreadsheet_file())
-        logger.debug("common_spreadsheet_file loaded as: {}".format(common_spreadsheet_file))
+            "common_spreadsheet_file",
+            self._prepare_default_output_common_spreadsheet_file(),
+        )
+        logger.debug(
+            "common_spreadsheet_file loaded as: {}".format(common_spreadsheet_file)
+        )
         params = [
             {
                 "name": "Input",
@@ -82,8 +90,8 @@ class AnimalWatch:
                 "children": [
                     {"name": "Directory Path", "type": "str"},
                     {"name": "Select", "type": "action"},
-                    {"name": "Data Info", "type": "str", "readonly": True},
-                    {"name": "Camera ID", "type": "str"}
+                    # {"name": "Data Info", "type": "str", "readonly": True},
+                    # {"name": "Camera ID", "type": "str"}
                 ],
             },
             {
@@ -112,9 +120,9 @@ class AnimalWatch:
                 "children": [
                     # {'name': 'Directory Path', 'type': 'str', 'value': prepare_default_output_dir()},
                     {
-                        'name': "Anwa dir",
-                        "type": 'str',
-                        'value': self._prepare_anwa_dir()
+                        "name": "Anwa dir",
+                        "type": "str",
+                        "value": self._prepare_anwa_dir(),
                     },
                     self.activity_detector.parameters,
                     # {
@@ -164,7 +172,9 @@ class AnimalWatch:
         pass
 
     def _prepare_default_output_dir(self):
-        default_dir = io3d.datasets.join_path("lynx_lynx", "processed", "anwa", get_root=True)
+        default_dir = io3d.datasets.join_path(
+            "lynx_lynx", "processed", "anwa", get_root=True
+        )
         return default_dir
 
     def _prepare_anwa_dir(self):
@@ -202,14 +212,14 @@ class AnimalWatch:
         fnparam = self.parameters.param("Output", "Directory Path")
         fnparam.setValue(str(path))
 
-    def set_report_level(self, level:int):
+    def set_report_level(self, level: int):
         fnparam = self.parameters.param("Processing", "Report Level")
         fnparam.setValue(level)
 
     def set_common_spreadsheet_file(self, path):
         fnparam = self.parameters.param("Output", "Common Spreadsheet File")
         fnparam.setValue(path)
-        self.cache.update('common_spreadsheet_file', path)
+        self.cache.update("common_spreadsheet_file", path)
         logger.debug("common_spreadsheet_file set to {}".format(path))
         print("common_spreadsheet_file set to {}".format(path))
 
@@ -266,9 +276,7 @@ class AnimalWatch:
         # self.parameters.param("Output", "Select Common Spreadsheet File").sigActivated.connect(
         #     self.select_output_spreadsheet_gui
         # )
-        self.parameters.param("Run").sigActivated.connect(
-            self.run
-        )
+        self.parameters.param("Run").sigActivated.connect(self.run)
 
         # self.parameters.param("Processing", "Open output dir").setValue(True)
         t = ParameterTree()
@@ -302,4 +310,3 @@ class AnimalWatch:
         if not skip_exec:
 
             qapp.exec_()
-
