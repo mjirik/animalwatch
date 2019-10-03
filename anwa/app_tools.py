@@ -1,12 +1,15 @@
 # /usr/bin/env python
 # -*- coding: utf-8 -*-
+
 from pathlib import Path
-import sys
 import os.path as op
 
 
-def create_icon(app_name:str, conda_env_name=None, icon_filename=None, package_name=None):
+def create_icon(
+    app_name: str, conda_env_name=None, icon_filename=None, package_name=None
+):
     import platform
+
     # print(platform.system)
     if conda_env_name is None:
         conda_env_name = app_name
@@ -26,6 +29,7 @@ def create_icon(app_name:str, conda_env_name=None, icon_filename=None, package_n
 
         logo_fn = op.join(op.dirname(__file__), icon_filename)
         import win32com.client
+
         shell = win32com.client.Dispatch("WScript.Shell")
 
         pth = Path.home()
@@ -38,6 +42,8 @@ def create_icon(app_name:str, conda_env_name=None, icon_filename=None, package_n
         # shortcut.Arguments = f"-m {app_name}"
         shortcut.TargetPath = "cmd"
         # C:\Windows\System32\cmd.exe /C "call activate anwaapp & pause &  python -m anwa & pause"
-        shortcut.Arguments = f'/C "call activate {conda_env_name} & python -m {package_name} & pause" '
+        shortcut.Arguments = (
+            f'/C "call activate {conda_env_name} & python -m {package_name} & pause" '
+        )
         shortcut.IconLocation = "{},0".format(logo_fn)
         shortcut.Save()

@@ -9,6 +9,7 @@ import sys
 import click
 from pathlib import Path
 import ast
+
 # print("start")
 # from . import image
 
@@ -18,7 +19,8 @@ import ast
 # from scaffan import algorithm
 
 from . import algorithm
-CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+
+CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
 # print("Running __main__.py")
@@ -37,8 +39,9 @@ def run(ctx, *args, **kwargs):
         # a.main()
     else:
         pass
-        click.echo('I am about to invoke %s' % ctx.invoked_subcommand)
+        click.echo("I am about to invoke %s" % ctx.invoked_subcommand)
     pass
+
 
 # @run.command(context_settings=CONTEXT_SETTINGS, help="Set persistent values")
 # @click.option("--common-spreadsheet-file",  help="Set path for common spreadsheet file.", type=click.Path())
@@ -53,15 +56,23 @@ def run(ctx, *args, **kwargs):
 #     algorithm.Scaffan().parameters.
 #     params.
 
+
 @run.command(context_settings=CONTEXT_SETTINGS)
-@click.option('--params', '-p', multiple=True, default='', nargs=2,
-              help='Set parameter. First argument is path to parameter separated by ";". Second is the value.'
-                   'python -m scaffan gui -p Processing;Show True')
-@click.option('--print-params', '-pp', is_flag=True, help='Print parameters')
+@click.option(
+    "--params",
+    "-p",
+    multiple=True,
+    default="",
+    nargs=2,
+    help='Set parameter. First argument is path to parameter separated by ";". Second is the value.'
+    "python -m scaffan gui -p Processing;Show True",
+)
+@click.option("--print-params", "-pp", is_flag=True, help="Print parameters")
 def gui(params, print_params):
     mainapp = algorithm.AnimalWatch()
     if print_params:
         import pprint
+
         pprint.pprint(mainapp.parameters_to_dict())
         exit()
     for param in params:
@@ -70,9 +81,12 @@ def gui(params, print_params):
     mainapp.start_gui()
 
 
-@run.command(context_settings=CONTEXT_SETTINGS, help="Create an icon on Windows platform")
+@run.command(
+    context_settings=CONTEXT_SETTINGS, help="Create an icon on Windows platform"
+)
 def install():
     from .app_tools import create_icon
+
     create_icon("anwa", conda_env_name="anwa_app")
     import platform
 
@@ -101,15 +115,25 @@ def install():
 
 
 @run.command(context_settings=CONTEXT_SETTINGS)
-@click.option('--params', '-p', multiple=True, default='', nargs=2,
-              help='Set parameter. First argument is path to parameter separated by ",". Second is the value.'
-                   'python -m scaffan gui -p Processing,Show True')
+@click.option(
+    "--params",
+    "-p",
+    multiple=True,
+    default="",
+    nargs=2,
+    help='Set parameter. First argument is path to parameter separated by ",". Second is the value.'
+    "python -m scaffan gui -p Processing,Show True",
+)
 def nogui(params):
     mainapp = algorithm.AnimalWatch()
     for param in params:
-        mainapp.parameters.param(*param[0].split(",")).setValue(ast.literal_eval(param[1]))
+        mainapp.parameters.param(*param[0].split(",")).setValue(
+            ast.literal_eval(param[1])
+        )
     mainapp.start_gui()
     mainapp.run_lobuluses()
+
+
 # def install():
 
 run()

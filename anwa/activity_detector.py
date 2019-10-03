@@ -1,5 +1,6 @@
 import glob
 import os.path as op
+
 # import seaborn as sns
 from pyqtgraph.parametertree import Parameter
 import imageio
@@ -12,7 +13,6 @@ from loguru import logger
 from exsu.report import Report
 
 
-
 # datapath = op.expanduser("~/data/lynx_lynx/fotopasti_20170825/videa/s rysem/**/**")
 
 
@@ -23,50 +23,47 @@ class ActivityDetector:
                 "name": "Activity Video Cut Threshold",
                 "type": "float",
                 "value": 2.0,
-                'tip': "Applied on activity frames cropping out frames without activity",
+                "tip": "Applied on activity frames cropping out frames without activity",
                 "suffix": "%",
-                "siPrefix": False
-
+                "siPrefix": False,
             },
             {
                 "name": "Activity Crop Threshold",
                 "type": "float",
-                "value": .3,
-                'tip': "Applied on activity frames filtered by time and space"
+                "value": 0.3,
+                "tip": "Applied on activity frames filtered by time and space"
                 # "suffix": "",
                 # "siPrefix": True
-
             },
             {
                 "name": "Start Frame Offset",
                 "type": "int",
                 "value": 1,
-                'tip': "ignore first few frames"
+                "tip": "ignore first few frames"
                 # "suffix": "",
                 # "siPrefix": True
-
             },
             {
                 "name": "End Frame Offset",
                 "type": "int",
                 "value": 0,
-                'tip': "ignore last few frames"
+                "tip": "ignore last few frames"
                 # "suffix": "",
                 # "siPrefix": True
-
             },
             # {
             #     "name": "GLCM Levels",
             #     "type": "int",
             #     "value": 64
             # },
-
         ]
 
-        self.parameters = Parameter.create(name="Activity Detector", type="group", children=params, expanded=False)
+        self.parameters = Parameter.create(
+            name="Activity Detector", type="group", children=params, expanded=False
+        )
         self.input_path = None
         self.output_path = None
-        self.report=report
+        self.report = report
 
     def set_input_path(self, input_path):
         """
@@ -78,11 +75,10 @@ class ActivityDetector:
     def set_output_path(self, output_path):
         self.output_path = Path(output_path)
 
-
     def run(self):
         logger.debug(f"Reading files in dir: {self.input_path}")
         # fnvideos = glob.glob(op.join(op.expanduser(self.input_path), "*"))
-        fnvideos = list(Path(op.join(op.expanduser(self.input_path))).glob('**/*'))
+        fnvideos = list(Path(op.join(op.expanduser(self.input_path))).glob("**/*"))
         logger.debug(f"number files in dir: {len(fnvideos)}")
         for fn in fnvideos:
             plt.figure(figsize=(14, 8))
@@ -91,19 +87,20 @@ class ActivityDetector:
             # except Exception as e:
             except ValueError as e:
                 import traceback
+
                 logger.warning(f"Problem with processing file: {fn}")
                 logger.debug(traceback.format_exc())
         pass
 
-    def run_one(self, fn:Path):
+    def run_one(self, fn: Path):
         """
         """
-        report:Report = self.report
+        report: Report = self.report
         logger.info(f"reading file {fn}")
         vid = imageio.get_reader(fn)
         fnrel = fn.relative_to(self.input_path.expanduser())
         fnrel.parent
-        odirpath = self.output_path/fnrel.parent
+        odirpath = self.output_path / fnrel.parent
         odirpath.mkdir(parents=True, exist_ok=True)
         logger.debug("background model extraction")
 
@@ -111,14 +108,23 @@ class ActivityDetector:
         if report is not None:
             logger.debug("saving")
             logger.debug(
-                f"min: {np.min(background_model)}, mean: {np.mean(background_model)}, max: {np.max(background_model)}")
-            report.imsave(f"{fnrel.parent}/{fn.stem}_background", background_model / 255.0, level=50, level_skimage=10)
+                f"min: {np.min(background_model)}, mean: {np.mean(background_model)}, max: {np.max(background_model)}"
+            )
+            report.imsave(
+                f"{fnrel.parent}/{fn.stem}_background",
+                background_model / 255.0,
+                level=50,
+                level_skimage=10,
+            )
         logger.debug("activity estimation")
         begin_offset = int(self.parameters.param("Start Frame Offset").value())
         end_offset = int(self.parameters.param("End Frame Offset").value())
         # end_offset = 10
-        error, time, errmax = activity_estimation(vid, background_model, begin_offset=begin_offset, end_offset=end_offset)
+        error, time, errmax = activity_estimation(
+            vid, background_model, begin_offset=begin_offset, end_offset=end_offset
+        )
         import scipy
+
         error_filt = scipy.signal.medfilt(error, 5)
         if report is not None:
             fig = plt.figure()
@@ -126,42 +132,61 @@ class ActivityDetector:
             report.savefig_and_show(fn.stem + "_activity", fig)
         frame, iframe = get_max_image(vid, error)
         if report is not None:
-            report.imsave(f"{fnrel.parent}/{fn.stem}_maxframe", frame, level=50, level_skimage=10)
+            report.imsave(
+                f"{fnrel.parent}/{fn.stem}_maxframe", frame, level=50, level_skimage=10
+            )
         errim = get_activity_diff_image(frame, background_model)
         if report is not None:
-            report.imsave(f"{fnrel.parent}/{fn.stem}_errim", errim, level=45, level_skimage=10)
+            report.imsave(
+                f"{fnrel.parent}/{fn.stem}_errim", errim, level=45, level_skimage=10
+            )
         #     return background_model, error, time, errmax, image, imax
-        filtered_activity = activity_filter_time_and_space(vid, iframe, background_model)
+        filtered_activity = activity_filter_time_and_space(
+            vid, iframe, background_model
+        )
         if report is not None:
 
-            report.imsave(f"{fnrel.parent}/{fn.stem}_filtered_activity", filtered_activity, level=40, level_skimage=10)
+            report.imsave(
+                f"{fnrel.parent}/{fn.stem}_filtered_activity",
+                filtered_activity,
+                level=40,
+                level_skimage=10,
+            )
             fig = plt.figure()
             plt.imshow(filtered_activity)
             plt.colorbar()
-            report.savefig_and_show(f"{fnrel.parent}/{fn.stem}_filtered_activity_fig", fig, level=40)
+            report.savefig_and_show(
+                f"{fnrel.parent}/{fn.stem}_filtered_activity_fig", fig, level=40
+            )
 
         thr = float(self.parameters.param("Activity Crop Threshold").value())
         roi = activity_roi(filtered_activity, activity_threshold=thr)
         if roi is not None:
             cropped_frame = crop_frame(frame, *roi)
             if report is not None:
-                report.imsave(f"{fnrel.parent}/{fn.stem}_max_activity_crop", cropped_frame, level=60, level_skimage=10)
+                report.imsave(
+                    f"{fnrel.parent}/{fn.stem}_max_activity_crop",
+                    cropped_frame,
+                    level=60,
+                    level_skimage=10,
+                )
 
         self._cut_video(vid, fn, error_filt)
 
-
-    def _cut_video(self, vid, fn:Path, error):
+    def _cut_video(self, vid, fn: Path, error):
 
         print("cut video")
-        thr = float(self.parameters.param("Activity Video Cut Threshold").value()) * 0.01
+        thr = (
+            float(self.parameters.param("Activity Video Cut Threshold").value()) * 0.01
+        )
         reader = vid
         # reader = imageio.get_reader('imageio:cockatoo.mp4')
-        fps = reader.get_meta_data()['fps']
+        fps = reader.get_meta_data()["fps"]
         # import pdb; pdb.set_trace()
         fnrel = fn.relative_to(self.input_path.expanduser())
         logger.debug(f"relative path {str(fnrel)}")
 
-        opath = self.output_path/fnrel.parent/(fnrel.stem + "_cut" + fn.suffix)
+        opath = self.output_path / fnrel.parent / (fnrel.stem + "_cut" + fn.suffix)
         logger.debug(f"opath {str(opath)}")
         opath.parent.mkdir(parents=True, exist_ok=True)
 
@@ -179,7 +204,9 @@ class ActivityDetector:
         writer.close()
 
     def plt_activity(self, time, error, error_filt=None):
-        thr_percent = float(self.parameters.param("Activity Video Cut Threshold").value())
+        thr_percent = float(
+            self.parameters.param("Activity Video Cut Threshold").value()
+        )
         plt.semilogy(time, 100 * (error))
         if error_filt is not None:
             plt.semilogy(time, 100 * (error_filt), "r")
@@ -187,11 +214,9 @@ class ActivityDetector:
         plt.ylim(0.1, 100)
         # plt.hlines([thr_percent])
         logger.debug(f"thr percent: {thr_percent}")
-        plt.axhline(thr_percent, ls='--')
+        plt.axhline(thr_percent, ls="--")
         plt.xlabel("Time [s]")
         plt.ylabel("Activity [%]")
-
-
 
 
 def create_background_model(vid, begin_offset=1, end_offset=50, step=10):
@@ -212,8 +237,9 @@ def create_background_model(vid, begin_offset=1, end_offset=50, step=10):
         if processed_images == 0:
             background_model = image
         else:
-            background_model = (processed_images * background_model) / (processed_images + 1.) + image / (
-                        processed_images + 1.)
+            background_model = (processed_images * background_model) / (
+                processed_images + 1.0
+            ) + image / (processed_images + 1.0)
         processed_images += 1
 
     return background_model, frame_size
@@ -224,7 +250,7 @@ def activity_estimation(vid, background_model, begin_offset=0, end_offset=0, ste
     # error = [0.0] * vid.count_frames()
     error = []
 
-    fps = vid.get_meta_data()['fps']
+    fps = vid.get_meta_data()["fps"]
     frame_size = vid.get_meta_data()["size"]
     nums = range(begin_offset, vid.count_frames() - end_offset, step)
 
@@ -243,14 +269,13 @@ def activity_estimation(vid, background_model, begin_offset=0, end_offset=0, ste
     return error, time, errmax
 
 
-
-
 import skimage.filters
 from skimage.morphology import disk
 
 
 def get_max_image(vid, error, begin_offset=1, end_offset=10):
     import copy
+
     error2 = copy.copy(error)
     error2[-end_offset:] = 0
     imax = np.argmax(error2)
@@ -262,29 +287,40 @@ def get_image(vid, imax, begin_offset=1):
     return vid.get_data(imax + begin_offset)
 
 
-
 def get_activity_diff_image(image, background_model, safety_multiplicator=0.99):
     diff = np.abs(image.astype(float) - background_model.astype(float))
     errim = (diff[:, :, 0] ** 2 + diff[:, :, 1] ** 2 + diff[:, :, 2] ** 2) ** 0.5
     # normaliza to range <0 ; 1>
     # sqrt(3) because of 3 color channels
-    errim = safety_multiplicator * errim / (255. * np.sqrt(3))
+    errim = safety_multiplicator * errim / (255.0 * np.sqrt(3))
     return errim
 
 
 def activity_time_filter(
-        vid, iframe, background_model,
-        begin_offset=1, end_offset=50, around_imax=range, time_range=5):
+    vid,
+    iframe,
+    background_model,
+    begin_offset=1,
+    end_offset=50,
+    around_imax=range,
+    time_range=5,
+):
     around_mn = int(max(begin_offset, round(iframe - (time_range / 2))))
-    around_mx = int(min(vid.count_frames() - end_offset, round(iframe + (time_range / 2))))
+    around_mx = int(
+        min(vid.count_frames() - end_offset, round(iframe + (time_range / 2)))
+    )
 
     around_range = range(around_mn, around_mx, 10)
 
-    frames = np.zeros([background_model.shape[0], background_model.shape[1], len(around_range)])
+    frames = np.zeros(
+        [background_model.shape[0], background_model.shape[1], len(around_range)]
+    )
 
     for i, iiframe in enumerate(around_range):
         #     print(i, iframe)
-        frames[:, :, i] = get_activity_diff_image(get_image(vid, iiframe, begin_offset=begin_offset), background_model)
+        frames[:, :, i] = get_activity_diff_image(
+            get_image(vid, iiframe, begin_offset=begin_offset), background_model
+        )
     #     plt.figure()
     #     plt.imshow(frames[:,:,i])
 
@@ -300,12 +336,17 @@ def activity_space_filter(time_mean_frame, median_disk_radius=15, gaussian_sigma
     #     if np.min(time_mean_frame) < 0:
 
     # mean_frame_filtered = skimage.filters.gaussian(mean_frame, sigma=5.0)
-    mean_frame_filtered = skimage.filters.median(time_mean_frame, disk(median_disk_radius))
-    mean_frame_filtered = skimage.filters.gaussian(mean_frame_filtered, sigma=gaussian_sigma)
+    mean_frame_filtered = skimage.filters.median(
+        time_mean_frame, disk(median_disk_radius)
+    )
+    mean_frame_filtered = skimage.filters.gaussian(
+        mean_frame_filtered, sigma=gaussian_sigma
+    )
     return mean_frame_filtered
 
 
 import matplotlib.patches as patches
+
 
 def activity_filter_time_and_space(vid, iframe, background_model):
     """
@@ -332,16 +373,13 @@ def activity_roi(mean_frame_filtered, cut_border=40, activity_threshold=0.1):
     x, y = np.nonzero(binary_activity_frame)
     if len(x) == 0:
         return None
-    roi_min = [
-        max(np.min(y) - cut_border, 0),
-        max(np.min(x) - cut_border, 0)
-    ]
+    roi_min = [max(np.min(y) - cut_border, 0), max(np.min(x) - cut_border, 0)]
     roi_max = [
         min(np.max(y) + cut_border, mean_frame_filtered.shape[1]),
         min(np.max(x) + cut_border, mean_frame_filtered.shape[0]),
-
     ]
     return roi_min, roi_max
+
 
 def show_roi(roi_min, roi_max=None, roi_size=None, image=None):
     if roi_size is None:
@@ -356,20 +394,15 @@ def show_roi(roi_min, roi_max=None, roi_size=None, image=None):
     ax.add_patch(
         patches.Rectangle(
             roi_min,
-    #         (10, 10),
+            #         (10, 10),
             roi_size[0],
             roi_size[1],
-            fill=False,      # remove background
+            fill=False,  # remove background
             edgecolor="red",
-            linewidth=3
+            linewidth=3,
         )
     )
 
+
 def crop_frame(frame, roi_min, roi_max):
-    return frame[
-        roi_min[1]:roi_max[1],
-        roi_min[0]:roi_max[0],
-        :
-    ]
-
-
+    return frame[roi_min[1] : roi_max[1], roi_min[0] : roi_max[0], :]
