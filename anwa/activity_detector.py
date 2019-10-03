@@ -22,7 +22,7 @@ class ActivityDetector:
             {
                 "name": "Activity Video Cut Threshold",
                 "type": "float",
-                "value": 1.0,
+                "value": 2.0,
                 'tip': "Applied on activity frames cropping out frames without activity",
                 "suffix": "%",
                 "siPrefix": False
@@ -98,9 +98,13 @@ class ActivityDetector:
     def run_one(self, fn:Path):
         """
         """
-        report = self.report
+        report:Report = self.report
         logger.info(f"reading file {fn}")
         vid = imageio.get_reader(fn)
+        fnrel = fn.relative_to(self.input_path.expanduser())
+        fnrel.parent
+        odirpath = self.output_path/fnrel.parent
+        odirpath.mkdir(parents=True, exist_ok=True)
         logger.debug("background model extraction")
 
         background_model, frame_size = create_background_model(vid)
@@ -108,7 +112,7 @@ class ActivityDetector:
             logger.debug("saving")
             logger.debug(
                 f"min: {np.min(background_model)}, mean: {np.mean(background_model)}, max: {np.max(background_model)}")
-            report.imsave(f"{fn.stem}_background", background_model / 255.0, level=50, level_skimage=10)
+            report.imsave(f"{fnrel.parent}/{fn.stem}_background", background_model / 255.0, level=50, level_skimage=10)
         logger.debug("activity estimation")
         begin_offset = int(self.parameters.param("Start Frame Offset").value())
         end_offset = int(self.parameters.param("End Frame Offset").value())
@@ -122,26 +126,26 @@ class ActivityDetector:
             report.savefig_and_show(fn.stem + "_activity", fig)
         frame, iframe = get_max_image(vid, error)
         if report is not None:
-            report.imsave(f"{fn.stem}_maxframe", frame, level=50, level_skimage=10)
+            report.imsave(f"{fnrel.parent}/{fn.stem}_maxframe", frame, level=50, level_skimage=10)
         errim = get_activity_diff_image(frame, background_model)
         if report is not None:
-            report.imsave(f"{fn.stem}_errim", errim, level=45, level_skimage=10)
+            report.imsave(f"{fnrel.parent}/{fn.stem}_errim", errim, level=45, level_skimage=10)
         #     return background_model, error, time, errmax, image, imax
         filtered_activity = activity_filter_time_and_space(vid, iframe, background_model)
         if report is not None:
 
-            report.imsave(f"{fn.stem}_filtered_activity", filtered_activity, level=40, level_skimage=10)
+            report.imsave(f"{fnrel.parent}/{fn.stem}_filtered_activity", filtered_activity, level=40, level_skimage=10)
             fig = plt.figure()
             plt.imshow(filtered_activity)
             plt.colorbar()
-            report.savefig_and_show(f"{fn.stem}_filtered_activity_fig", fig, level=40)
+            report.savefig_and_show(f"{fnrel.parent}/{fn.stem}_filtered_activity_fig", fig, level=40)
 
         thr = float(self.parameters.param("Activity Crop Threshold").value())
         roi = activity_roi(filtered_activity, activity_threshold=thr)
         if roi is not None:
             cropped_frame = crop_frame(frame, *roi)
             if report is not None:
-                report.imsave(f"{fn.stem}_max_activity_crop", cropped_frame, level=60, level_skimage=10)
+                report.imsave(f"{fnrel.parent}/{fn.stem}_max_activity_crop", cropped_frame, level=60, level_skimage=10)
 
         self._cut_video(vid, fn, error_filt)
 

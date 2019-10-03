@@ -49,6 +49,7 @@ requirements:
     - click
     - pandas
     - exsu
+#    - seaborn
 #    - { pin_compatible('imma', max_pin='x.x') }
 
   run:
@@ -63,6 +64,7 @@ requirements:
     - click
     - pandas
     - exsu
+    - seaborn
 #    - { pin_compatible('exsu', max_pin='x', min_pin="x.x") }
     # - { pin_compatible('imma', max_pin='x.x') }
     # - numpy
