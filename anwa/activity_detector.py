@@ -114,7 +114,7 @@ class ActivityDetector:
                 f"{fnrel.parent}/{fn.stem}_background",
                 background_model / 255.0,
                 level=50,
-                level_skimage=10,
+                npz_level=10,
             )
         logger.debug("activity estimation")
         begin_offset = int(self.parameters.param("Start Frame Offset").value())
