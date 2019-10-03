@@ -65,6 +65,7 @@ requirements:
     - pandas
     - exsu
     - seaborn
+    - imageio-ffmpeg
 #    - { pin_compatible('exsu', max_pin='x', min_pin="x.x") }
     # - { pin_compatible('imma', max_pin='x.x') }
     # - numpy

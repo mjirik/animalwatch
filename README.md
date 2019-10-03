@@ -17,7 +17,7 @@ Automatic animal detection in video
 * In command line (`cmd` on Windows) use:
 
 ```cmd
-conda create -n anwa_app -c conda-forge -c mjirik --yes anwa pywin32
+conda create -n anwa_app -c conda-forge -c mjirik --yes anwa pywin32 imageio-ffmpeg
 conda activate anwa_app
 python -m anwa install
 ```
@@ -31,7 +31,7 @@ python -m anwa install
 * In command line use:
 
 ```cmd
-conda create -n anwa_app -c conda-forge -c mjirik --yes anwa
+conda create -n anwa_app -c conda-forge -c mjirik --yes anwa imageio-ffmpeg
 ```
 
 ## Run 
