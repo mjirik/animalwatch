@@ -110,13 +110,22 @@ class ActivityDetector:
             logger.debug(
                 f"min: {np.min(background_model)}, mean: {np.mean(background_model)}, max: {np.max(background_model)}"
             )
-            report.imsave(
-                f"{fnrel.parent}/{fn.stem}_background",
-                background_model / 255.0,
-                level=50,
-                npz_level=10,
-            )
-        logger.debug("activity estimation")
+            try:
+                report.imsave(
+                    f"{fnrel.parent}/{fn.stem}_background",
+                    background_model / 255.0,
+                    level=50,
+                    npz_level=10,
+                )
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                report.imsave(
+                    f"{fnrel.parent}/{fn.stem}_background",
+                    background_model / 255.0,
+                    level=50
+                )
+            logger.debug("activity estimation")
         begin_offset = int(self.parameters.param("Start Frame Offset").value())
         end_offset = int(self.parameters.param("End Frame Offset").value())
         # end_offset = 10
@@ -222,7 +231,11 @@ class ActivityDetector:
 def create_background_model(vid, begin_offset=1, end_offset=50, step=10):
 
     vid_len = vid.get_length() - end_offset - begin_offset
-    frame_size = vid.get_meta_data()["size"]
+    try:
+        frame_size = vid.get_meta_data()["size"]
+    except Exception as e:
+        import pdb; pdb.set_trace()
+
 
     background_model = np.zeros([frame_size[1], frame_size[0], 3])
 
