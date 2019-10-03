@@ -81,16 +81,19 @@ class ActivityDetector:
         fnvideos = list(Path(op.join(op.expanduser(self.input_path))).glob("**/*"))
         logger.debug(f"number files in dir: {len(fnvideos)}")
         for fn in fnvideos:
-            plt.figure(figsize=(14, 8))
-            try:
-                self.run_one(Path(fn))
-            # except Exception as e:
-            except ValueError as e:
-                import traceback
-
-                logger.warning(f"Problem with processing file: {fn}")
-                logger.debug(traceback.format_exc())
-        pass
+            if fn.is_file() and fn.suffix not in (".jpg", ".JPG", ".png", ".PNG"):
+                # plt.figure(figsize=(14, 8))
+                try:
+                    self.run_one(Path(fn))
+                # except Exception as e:
+                except ValueError as e:
+                    import traceback
+                    logger.debug(traceback.format_exc())
+                    logger.warning(f"Problem with processing file: {fn}")
+                except KeyError as e:
+                    import traceback
+                    logger.debug(traceback.format_exc())
+                    logger.warning(f"Problem with processing file: {fn}")
 
     def run_one(self, fn: Path):
         """

@@ -34,9 +34,9 @@ import pyqtgraph.widgets
 import io3d
 import io3d.datasets
 
-pth = str(Path(__file__).parent / "../../exsu/")
-logger.debug(f"exsu path: {pth}")
-sys.path.insert(0, pth)
+# pth = str(Path(__file__).parent / "../../exsu/")
+# logger.debug(f"exsu path: {pth}")
+# sys.path.insert(0, pth)
 import exsu
 
 logger.debug(f"exsu path 2: {exsu.__file__}")
