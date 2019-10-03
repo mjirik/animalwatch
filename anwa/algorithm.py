@@ -82,8 +82,8 @@ class AnimalWatch:
                 "children": [
                     {"name": "Directory Path", "type": "str"},
                     {"name": "Select", "type": "action"},
-                    {"name": "Data Info", "type": "str", "readonly": True},
-                    {"name": "Camera ID", "type": "str"}
+                    # {"name": "Data Info", "type": "str", "readonly": True},
+                    # {"name": "Camera ID", "type": "str"}
                 ],
             },
             {
