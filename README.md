@@ -18,5 +18,5 @@ Automatic animal detection in video
 ```cmd
 conda create -n anwa_app -c conda-forge -c mjirik --yes anwa
 conda activate anwa_app
-conda -m anwa install
+python -m anwa install
 ```
