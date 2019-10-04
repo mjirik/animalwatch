@@ -26,6 +26,9 @@ def test_on_arina():
     aw = anwa.algorithm.AnimalWatch()
     # pth = "~/data/animals/orig/"
     pth = io3d.datasets.join_path("animals", "orig", get_root=True)
+    pthout = io3d.datasets.join_path("animals", "orig", get_root=True)
     aw.set_input_dir(pth)
+    aw.set_report_level(30)
+    aw.set_output_dir("./test_output")
     # aw.set_input_dir("~/data/lynx_lynx/fotopasti_20170825/videa/s rysem/**/*")
     aw.run()
