@@ -173,7 +173,7 @@ class AnimalWatch:
 
     def _prepare_default_output_dir(self):
         default_dir = io3d.datasets.join_path(
-            "lynx_lynx", "processed", "anwa", get_root=True
+            "animals", "processed", "anwa", get_root=True
         )
         return default_dir
 

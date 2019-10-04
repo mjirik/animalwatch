@@ -88,7 +88,7 @@ install:
 #    - 'echo "include /usr/local/lib" | sudo tee -a /etc/ld.so.conf'
 #    - 'sudo ldconfig -v'
 #    - conda list -e
-#    - python -m io3d.datasets -l 3Dircadb1.1 jatra_5mm exp_small sliver_training_001 io3d_sample_data head volumetrie
+    - python -m io3d.datasets -l arina
 # command to run tests
 # script: nosetests -v --with-coverage --cover-package=anwa
 
