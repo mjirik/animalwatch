@@ -5,10 +5,11 @@
 # logger = logging.getLogger(__name__)
 from loguru import logger
 import pytest
-import os.path
+# import os.path
 import anwa.algorithm
 
-path_to_script = os.path.dirname(os.path.abspath(__file__))
+# path_to_script = os.path.dirname(os.path.abspath(__file__))
+import io3d
 
 
 
@@ -23,7 +24,8 @@ def test_run_one_dir():
 
 def test_on_arina():
     aw = anwa.algorithm.AnimalWatch()
-    # aw.set_input_dir("~/data/anwa/")
-    aw.set_input_dir("~/data/animals/orig/")
+    # pth = "~/data/animals/orig/"
+    pth = io3d.datasets.join_path("animals", "orig", get_root=True)
+    aw.set_input_dir(pth)
     # aw.set_input_dir("~/data/lynx_lynx/fotopasti_20170825/videa/s rysem/**/*")
     aw.run()

@@ -6,6 +6,7 @@ import sys
 import traceback
 
 from PyQt5 import QtCore, QtWidgets
+# import PyQt5.QtCore.Signal
 
 # basic logger functionality
 log = logging.getLogger(__name__)
