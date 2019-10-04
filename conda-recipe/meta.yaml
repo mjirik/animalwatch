@@ -41,7 +41,6 @@ requirements:
     - python
     - setuptools
     - numpy
-#    - { pin_compatible('io3d', min_pin="x.x", max_pin='x') }
     - io3d
     - pyqtgraph
     - pyqt 5
@@ -49,24 +48,25 @@ requirements:
     - click
     - pandas
     - exsu
+  #    - { pin_compatible('io3d', min_pin="x.x", max_pin='x') }
 #    - seaborn
 #    - { pin_compatible('imma', max_pin='x.x') }
 
   run:
     - python
 #    - io3d
-    - { pin_compatible('io3d', min_pin="x.x", max_pin='x') }
+    - {{ pin_compatible('io3d', min_pin="x.x", max_pin='x') }}
     - pyqtgraph
     - pyqt 5
     - numpy
-    # install icon
-    - pywin32 # [win]
     - click
     - pandas
 #    - exsu
-    - { pin_compatible('exsu', min_pin="x.x", max_pin='x') }
+    - {{ pin_compatible('exsu', min_pin="x.x", max_pin='x') }}
     - seaborn
     - imageio-ffmpeg
+    # install icon
+    - pywin32 # [win]
 #    - { pin_compatible('exsu', max_pin='x', min_pin="x.x") }
     # - { pin_compatible('imma', max_pin='x.x') }
     # - numpy
