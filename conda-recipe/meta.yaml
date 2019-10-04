@@ -54,8 +54,8 @@ requirements:
 
   run:
     - python
-    - io3d
-#    - { pin_compatible('io3d', min_pin="x.x", max_pin='x') }
+#    - io3d
+    - { pin_compatible('io3d', min_pin="x.x", max_pin='x') }
     - pyqtgraph
     - pyqt 5
     - numpy
@@ -63,7 +63,8 @@ requirements:
     - pywin32 # [win]
     - click
     - pandas
-    - exsu
+#    - exsu
+    - { pin_compatible('exsu', min_pin="x.x", max_pin='x') }
     - seaborn
     - imageio-ffmpeg
 #    - { pin_compatible('exsu', max_pin='x', min_pin="x.x") }
