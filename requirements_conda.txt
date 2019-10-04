@@ -8,4 +8,5 @@ imageio-ffmpeg
 io3d
 pyqtgraph
 exsu
+click
 # seaborn
