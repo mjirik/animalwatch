@@ -115,7 +115,7 @@ class ActivityDetector:
             )
             try:
                 report.imsave(
-                    f"{fnrel.parent}/{fn.stem}_background",
+                    f"{fnrel.parent}/{fn.stem}_background.png",
                     background_model / 255.0,
                     level=50,
                     npz_level=10,
@@ -124,7 +124,7 @@ class ActivityDetector:
                 import traceback
                 traceback.print_exc()
                 report.imsave(
-                    f"{fnrel.parent}/{fn.stem}_background",
+                    f"{fnrel.parent}/{fn.stem}_background.png",
                     background_model / 255.0,
                     level=50
                 )
@@ -145,12 +145,12 @@ class ActivityDetector:
         frame, iframe = get_max_image(vid, error)
         if report is not None:
             report.imsave(
-                f"{fnrel.parent}/{fn.stem}_maxframe", frame, level=50, level_skimage=10
+                f"{fnrel.parent}/{fn.stem}_maxframe.png", frame, level=50, npz_level=10
             )
         errim = get_activity_diff_image(frame, background_model)
         if report is not None:
             report.imsave(
-                f"{fnrel.parent}/{fn.stem}_errim", errim, level=45, level_skimage=10
+                f"{fnrel.parent}/{fn.stem}_errim.png", errim, level=45, npz_level=10
             )
         #     return background_model, error, time, errmax, image, imax
         filtered_activity = activity_filter_time_and_space(
@@ -159,16 +159,16 @@ class ActivityDetector:
         if report is not None:
 
             report.imsave(
-                f"{fnrel.parent}/{fn.stem}_filtered_activity",
+                f"{fnrel.parent}/{fn.stem}_filtered_activity.png",
                 filtered_activity,
                 level=40,
-                level_skimage=10,
+                npz_level=10,
             )
             fig = plt.figure()
             plt.imshow(filtered_activity)
             plt.colorbar()
             report.savefig_and_show(
-                f"{fnrel.parent}/{fn.stem}_filtered_activity_fig", fig, level=40
+                f"{fnrel.parent}/{fn.stem}_filtered_activity_fig.png", fig, level=40
             )
 
         thr = float(self.parameters.param("Activity Crop Threshold").value())
@@ -177,10 +177,10 @@ class ActivityDetector:
             cropped_frame = crop_frame(frame, *roi)
             if report is not None:
                 report.imsave(
-                    f"{fnrel.parent}/{fn.stem}_max_activity_crop",
+                    f"{fnrel.parent}/{fn.stem}_max_activity_crop.png",
                     cropped_frame,
                     level=60,
-                    level_skimage=10,
+                    npz_level=10,
                 )
 
         self._cut_video(vid, fn, error_filt)
