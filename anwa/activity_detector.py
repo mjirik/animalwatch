@@ -187,7 +187,7 @@ class ActivityDetector:
 
     def _cut_video(self, vid, fn: Path, error):
 
-        print("cut video")
+        logger.debug("cut video")
         thr = (
             float(self.parameters.param("Activity Video Cut Threshold").value()) * 0.01
         )
