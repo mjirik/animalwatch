@@ -72,9 +72,7 @@ def run(ctx, *args, **kwargs):
 def gui(params, print_params):
     mainapp = algorithm.AnimalWatch()
     if print_params:
-        import pprint
-
-        pprint.pprint(mainapp.parameters_to_dict())
+        make_print_params(mainapp)
         exit()
         # mainapp.parameters.param(*param[0].split(";")).setValue(ast.literal_eval(param[1]))
     set_params(mainapp, params)
@@ -85,6 +83,11 @@ def set_params(mainapp, params):
     app_tools.set_parameters_by_path(mainapp.parameters, params)
     # for param in params:
     #     mainapp.set_parameter(param[0], value=ast.literal_eval(param[1]))
+
+
+def make_print_params(mainapp):
+    import pprint
+    pprint.pprint(mainapp.parameters_to_dict())
 
 
 @run.command(
@@ -117,8 +120,12 @@ def install():
     help='Set parameter. First argument is path to parameter separated by ",". Second is the value.'
     "python -m anwa nogui -p Processing;Show True",
 )
-def nogui(input_path, params):
+@click.option("--print-params", "-pp", is_flag=True, help="Print parameters")
+def nogui(input_path, params, print_params):
     mainapp = algorithm.AnimalWatch()
+    if print_params:
+        make_print_params(mainapp)
+        exit()
     set_params(mainapp, params)
     # for param in params:
     #     mainapp.parameters.param(*param[0].split(";")).setValue(

@@ -28,7 +28,7 @@ def test_import_app_tools():
 #     assert anwa.qtexceptionhook.qt_exception_hook is not None
 
 
-def test_main():
+def test_cli():
     import anwa.main_click
 
     pth = io3d.datasets.join_path("animals", "orig", get_root=True)
@@ -41,8 +41,8 @@ def test_main():
 
     runner = click.testing.CliRunner()
     # runner.invoke(anwa.main_click.nogui, ["-i", str(pth)])
-    # runner.invoke(anwa.main_click.run, ["nogui", "-i", pth, "-p", "Processing;Report Level", 60])
-    runner.invoke(anwa.main_click.run, ["nogui", "-i", pth])
+    runner.invoke(anwa.main_click.run, ["nogui", "-i", pth, "-p", "Processing;Report Level", 60])
+    # runner.invoke(anwa.main_click.run, ["nogui", "-i", pth])
 
     assert expected_pth.exists()
 
@@ -53,3 +53,10 @@ def test_main():
     # aw.set_input_dir("~/data/animals/orig/")
     # # aw.set_input_dir("~/data/lynx_lynx/fotopasti_20170825/videa/s rysem/**/*")
     # aw.run()
+
+
+def test_cli_print_params():
+    import anwa.main_click
+    runner = click.testing.CliRunner()
+    runner.invoke(anwa.main_click.run, ["nogui", "-pp"])
+
