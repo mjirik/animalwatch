@@ -90,8 +90,13 @@ def set_parameters_by_path(parameters:pyqtgraph.parametertree.Parameter, path_va
     :return:
     """
 
-    for param in path_val_couple_list:
-        set_parameter_by_path(parameters, param[0], value=ast.literal_eval(param[1], parse_path=parse_path, separator=separator))
+    for param_path, param_value in path_val_couple_list:
+        if type(param_value) is str:
+            value = ast.literal_eval(param_value)
+        else:
+            value = param_value
+        logger.debug(f"param path={param_path}, ast value={value}")
+        set_parameter_by_path(parameters, param_path, value=value, parse_path=parse_path, separator=separator)
 
 
 def set_parameter_by_path(parameters:pyqtgraph.parametertree.Parameter, param_path:str, value, parse_path=True, separator=";"):

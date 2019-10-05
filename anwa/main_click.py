@@ -63,7 +63,7 @@ def run(ctx, *args, **kwargs):
     "--params",
     "-p",
     multiple=True,
-    default="",
+    default=None,
     nargs=2,
     help='Set parameter. First argument is path to parameter separated by ";". Second is the value.'
     "python -m scaffan gui -p Processing;Show True",
@@ -80,7 +80,9 @@ def gui(params, print_params):
 
 
 def set_params(mainapp, params):
-    app_tools.set_parameters_by_path(mainapp.parameters, params)
+    if params is not None:
+        logger.debug("set_params() ...")
+        app_tools.set_parameters_by_path(mainapp.parameters, params)
     # for param in params:
     #     mainapp.set_parameter(param[0], value=ast.literal_eval(param[1]))
 
@@ -115,14 +117,15 @@ def install():
     "--params",
     "-p",
     multiple=True,
-    default="",
+    default=None,
     nargs=2,
-    help='Set parameter. First argument is path to parameter separated by ",". Second is the value.'
+    help='Set parameter. First argument is path to parameter separated by ";". Second is the value.'
     "python -m anwa nogui -p Processing;Show True",
 )
 @click.option("--print-params", "-pp", is_flag=True, help="Print parameters")
 def nogui(input_path, params, print_params):
     mainapp = algorithm.AnimalWatch()
+    logger.debug(f"params={params})")
     if print_params:
         make_print_params(mainapp)
         exit()

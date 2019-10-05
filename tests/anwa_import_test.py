@@ -41,7 +41,7 @@ def test_cli():
 
     runner = click.testing.CliRunner()
     # runner.invoke(anwa.main_click.nogui, ["-i", str(pth)])
-    runner.invoke(anwa.main_click.run, ["nogui", "-i", pth, "-p", "Processing;Report Level", 60])
+    runner.invoke(anwa.main_click.run, ["nogui", "-i", pth, "-p", "Processing;Report Level", "60"])
     # runner.invoke(anwa.main_click.run, ["nogui", "-i", pth])
 
     assert expected_pth.exists()
