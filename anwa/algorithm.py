@@ -23,11 +23,11 @@ import platform
 # from PyQt5.QtWidgets import QApplication, QFileDialog
 # print("start 4")
 from PyQt5 import QtGui
+from PyQt5 import QtWidgets
+import anwa.qtexceptionhook
 
 # print("start 5")
 from pyqtgraph.parametertree import Parameter, ParameterTree
-import pyqtgraph.widgets
-import pyqtgraph.widgets
 
 # print("start 6")
 
@@ -40,7 +40,7 @@ import io3d.datasets
 import exsu
 
 logger.debug(f"exsu path 2: {exsu.__file__}")
-from exsu.report import Report
+# from exsu.report import Report
 
 # import scaffan.lobulus
 # import scaffan.report
@@ -49,6 +49,7 @@ from exsu.report import Report
 # import scaffan.evaluation
 # from scaffan.pyqt_widgets import BatchFileProcessingParameter
 from . import activity_detector
+from . import app_tools
 
 
 class AnimalWatch:
@@ -180,11 +181,12 @@ class AnimalWatch:
         :param parse_path: Turn on separation of path by ";"
         :return:
         """
-        logger.debug(f"Set {param_path} to {value}")
-        if parse_path:
-            param_path = param_path.split(";")
-        fnparam = self.parameters.param(*param_path)
-        fnparam.setValue(value)
+        app_tools.set_parameter_by_path(self.parameters, param_path, value)
+        # logger.debug(f"Set {param_path} to {value}")
+        # if parse_path:
+        #     param_path = param_path.split(";")
+        # fnparam = self.parameters.param(*param_path)
+        # fnparam.setValue(value)
 
     def set_output_dir(self, path):
         fnparam = self.parameters.param("Output", "Directory Path")
@@ -238,8 +240,6 @@ class AnimalWatch:
 
     def start_gui(self, skip_exec=False, qapp=None):
 
-        from PyQt5 import QtWidgets
-        import anwa.qtexceptionhook
 
         # import QApplication, QFileDialog
         if not skip_exec and qapp == None:
