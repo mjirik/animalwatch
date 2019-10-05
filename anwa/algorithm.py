@@ -74,15 +74,15 @@ class AnimalWatch:
             report=self.report
         )
         self.win: QtGui.QWidget = None
-        self.cache = cachefile.CacheFile("~/.exsu_cache.yaml")
+        self.cache = cachefile.CacheFile("~/.anwa_cache.yaml")
         # self.cache.update('', path)
-        common_spreadsheet_file = self.cache.get_or_save_default(
-            "common_spreadsheet_file",
-            self._prepare_default_output_common_spreadsheet_file(),
-        )
-        logger.debug(
-            "common_spreadsheet_file loaded as: {}".format(common_spreadsheet_file)
-        )
+        # common_spreadsheet_file = self.cache.get_or_save_default(
+        #     "common_spreadsheet_file",
+        #     self._prepare_default_output_common_spreadsheet_file(),
+        # )
+        # logger.debug(
+        #     "common_spreadsheet_file loaded as: {}".format(common_spreadsheet_file)
+        # )
         params = [
             {
                 "name": "Input",
@@ -104,58 +104,18 @@ class AnimalWatch:
                         "value": self._prepare_default_output_dir(),
                     },
                     {"name": "Select", "type": "action"},
-                    # {
-                    #     "name": "Common Spreadsheet File",
-                    #     "type": "str",
-                    #     "value": common_spreadsheet_file,
-                    # },
-                    # {"name": "Select Common Spreadsheet File", "type": "action",
-                    #  "tip": "All measurements are appended to this file in addition to data stored in Output Directory Path."
-                    #  },
                 ],
             },
             {
                 "name": "Processing",
                 "type": "group",
                 "children": [
-                    # {'name': 'Directory Path', 'type': 'str', 'value': prepare_default_output_dir()},
-                    {
-                        "name": "Anwa dir",
-                        "type": "str",
-                        "value": self._prepare_anwa_dir(),
-                    },
                     self.activity_detector.parameters,
-                    # {
-                    #     "name": "Show",
-                    #     "type": "bool",
-                    #     "value": False,
-                    #     "tip": "Show images",
-                    # },
-                    # {
-                    #     "name": "Open output dir",
-                    #     "type": "bool",
-                    #     "value": False,
-                    #     "tip": "Open system window with output dir when processing is finished",
-                    # },
-                    # {
-                    #     "name": "Run Skeleton Analysis",
-                    #     "type": "bool",
-                    #     "value": True,
-                    #     # "tip": "Show images",
-                    # },
-                    # {
-                    #     "name": "Run Texture Analysis",
-                    #     "type": "bool",
-                    #     "value": True,
-                    #     # "tip": "Show images",
-                    # },
-                    # {
-                    #     "name": "Report Level",
-                    #     "type": "int",
-                    #     "value": 50,
-                    #     "tip": "Control ammount of stored images. 0 - all debug imagess will be stored. "
-                    #            "100 - just important images will be saved.",
-                    # },
+                    {
+                        "name": "Report Level",
+                        "type": "int",
+                        "value": 50,
+                    },
                 ],
             },
             {"name": "Run", "type": "action"},
@@ -168,8 +128,8 @@ class AnimalWatch:
         # self.anim: image.AnnotatedImage = None
         pass
 
-    def _prepare_default_output_common_spreadsheet_file(self):
-        pass
+    # def _prepare_default_output_common_spreadsheet_file(self):
+    #     pass
 
     def _prepare_default_output_dir(self):
         default_dir = io3d.datasets.join_path(
@@ -177,9 +137,9 @@ class AnimalWatch:
         )
         return default_dir
 
-    def _prepare_anwa_dir(self):
-        anwa_dir = Path("~/.anwa")
-        return anwa_dir
+    # def _prepare_anwa_dir(self):
+    #     anwa_dir = Path("~/.anwa")
+    #     return anwa_dir
 
     def select_input_dir_gui(self):
         from PyQt5 import QtWidgets
@@ -216,12 +176,12 @@ class AnimalWatch:
         fnparam = self.parameters.param("Processing", "Report Level")
         fnparam.setValue(level)
 
-    def set_common_spreadsheet_file(self, path):
-        fnparam = self.parameters.param("Output", "Common Spreadsheet File")
-        fnparam.setValue(path)
-        self.cache.update("common_spreadsheet_file", path)
-        logger.debug("common_spreadsheet_file set to {}".format(path))
-        print("common_spreadsheet_file set to {}".format(path))
+    # def set_common_spreadsheet_file(self, path):
+    #     fnparam = self.parameters.param("Output", "Common Spreadsheet File")
+    #     fnparam.setValue(path)
+    #     self.cache.update("common_spreadsheet_file", path)
+    #     logger.debug("common_spreadsheet_file set to {}".format(path))
+    #     print("common_spreadsheet_file set to {}".format(path))
 
     def select_output_dir_gui(self):
         from PyQt5 import QtWidgets
@@ -248,7 +208,7 @@ class AnimalWatch:
         idir = str(self.parameters.param("Input", "Directory Path").value())
         # = str(self.parameters.param("Output", "Directory Path").value())
         # odir = float(self.parameters.param("Output", "Directory Path").value())
-        self.report.level = 30
+        self.report.level = int(self.parameters.param("Processing", "Report Level").value())
 
         logger.debug(f"output dir {odir}")
         self.report.init_with_output_dir(odir)
