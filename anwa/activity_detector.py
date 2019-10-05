@@ -118,7 +118,7 @@ class ActivityDetector:
                     f"{fnrel.parent}/{fn.stem}_background.png",
                     background_model / 255.0,
                     level=50,
-                    npz_level=10,
+                    level_npz=10,
                 )
             except Exception as e:
                 import traceback
@@ -145,12 +145,12 @@ class ActivityDetector:
         frame, iframe = get_max_image(vid, error)
         if report is not None:
             report.imsave(
-                f"{fnrel.parent}/{fn.stem}_maxframe.png", frame, level=50, npz_level=10
+                f"{fnrel.parent}/{fn.stem}_maxframe.png", frame, level=50, level_npz=10
             )
         errim = get_activity_diff_image(frame, background_model)
         if report is not None:
             report.imsave(
-                f"{fnrel.parent}/{fn.stem}_errim.png", errim, level=45, npz_level=10
+                f"{fnrel.parent}/{fn.stem}_errim.png", errim, level=45, level_npz=10
             )
         #     return background_model, error, time, errmax, image, imax
         filtered_activity = activity_filter_time_and_space(
@@ -162,7 +162,7 @@ class ActivityDetector:
                 f"{fnrel.parent}/{fn.stem}_filtered_activity.png",
                 filtered_activity,
                 level=40,
-                npz_level=10,
+                level_npz=10,
             )
             fig = plt.figure()
             plt.imshow(filtered_activity)
@@ -180,7 +180,7 @@ class ActivityDetector:
                     f"{fnrel.parent}/{fn.stem}_max_activity_crop.png",
                     cropped_frame,
                     level=60,
-                    npz_level=10,
+                    level_npz=10,
                 )
 
         self._cut_video(vid, fn, error_filt)
