@@ -9,6 +9,7 @@ import sys
 import click
 from pathlib import Path
 import ast
+from . import app_tools
 
 # print("start")
 # from . import image
@@ -75,10 +76,15 @@ def gui(params, print_params):
 
         pprint.pprint(mainapp.parameters_to_dict())
         exit()
-    for param in params:
-        mainapp.set_parameter(param[0], value=ast.literal_eval(param[1]))
         # mainapp.parameters.param(*param[0].split(";")).setValue(ast.literal_eval(param[1]))
+    set_params(mainapp, params)
     mainapp.start_gui()
+
+
+def set_params(mainapp, params):
+    app_tools.set_parameter_by_path(mainapp.parameters, params)
+    # for param in params:
+    #     mainapp.set_parameter(param[0], value=ast.literal_eval(param[1]))
 
 
 @run.command(
@@ -88,29 +94,10 @@ def install():
     from .app_tools import create_icon
 
     create_icon("anwa", conda_env_name="anwa_app")
-    import platform
 
     # print(platform.system)
     # if platform.system() == "Windows":
     #     import pathlib
-    #     import os.path as op
-    #     # logo_fn2 = pathlib.Path(__file__).parent / pathlib.Path("scaffan_icon512.ico")
-    #
-    #     logo_fn = op.join(op.dirname(__file__), "anwa.ico")
-    #     import win32com.client
-    #     shell = win32com.client.Dispatch("WScript.Shell")
-    #
-    #     pth = Path.home()
-    #     pth = pth / "Desktop" / Path("AnWa.lnk")
-    #     shortcut = shell.CreateShortcut(str(pth))
-    #     # cmd
-    #     # ln =  "call activate scaffan; {} -m scaffan".format(sys.executable)
-    #     shortcut.TargetPath = sys.executable
-    #     shortcut.Arguments = "-m anwa"
-    #     # shortcut.TargetPath = cmd
-    #     # shortcut.Arguments = '/C "call activate scaffan & python -m scaffan" '
-    #     shortcut.IconLocation = "{},0".format(logo_fn)
-    #     shortcut.Save()
     # pass
 
 
@@ -128,14 +115,15 @@ def install():
     default="",
     nargs=2,
     help='Set parameter. First argument is path to parameter separated by ",". Second is the value.'
-    "python -m scaffan gui -p Processing,Show True",
+    "python -m anwa nogui -p Processing;Show True",
 )
 def nogui(input_path, params):
     mainapp = algorithm.AnimalWatch()
-    for param in params:
-        mainapp.parameters.param(*param[0].split(",")).setValue(
-            ast.literal_eval(param[1])
-        )
+    set_params(mainapp, params)
+    # for param in params:
+    #     mainapp.parameters.param(*param[0].split(";")).setValue(
+    #         ast.literal_eval(param[1])
+    #     )
     mainapp.set_input_dir(input_path)
     # mainapp.start_gui()
     mainapp.run()

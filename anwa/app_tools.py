@@ -3,6 +3,10 @@
 
 from pathlib import Path
 import os.path as op
+import pyqtgraph
+from loguru import logger
+from typing import List
+import ast
 
 
 def create_icon(
@@ -47,3 +51,59 @@ def create_icon(
         )
         shortcut.IconLocation = "{},0".format(logo_fn)
         shortcut.Save()
+
+
+def params_and_values(p:pyqtgraph.parametertree.Parameter, pth=None, dct={}, separator=";"):
+    """
+    Get dict of all parameters. Key is the path to the parameter, value is value of the parameter.
+    :param p:
+    :param pth:
+    :param dct:
+    :param separator:  default ";"
+    :return:
+    """
+    for name in p.getValues():
+        # print(f"name: {name}, type {type(name)}")
+        if pth is not None:
+            pth_local = pth + separator + name
+        else:
+            pth_local = name
+        # print(pth)
+        ch = p.child(name)
+        # print(f"name: {name}, type {type(ch)}")
+        if type(ch) is pyqtgraph.parametertree.parameterTypes.SimpleParameter:
+            dct[pth_local] = ch.value()
+            # print(pth)
+        else:
+            params_and_values(ch, pth_local)
+
+    return dct
+
+
+def set_parameters_by_path(parameters:pyqtgraph.parametertree.Parameter, plist:List, parse_path=True, separator=";"):
+    """
+    Set value to parameter.
+    :param parameters: paramtree.Paramterr
+    :param param_path: list of couple [Path to parameter can be separated by ";", value]
+    :param value:
+    :param parse_path: Turn on separation of path by ";"
+    :return:
+    """
+
+    for param in plist:
+        set_parameter_by_path(parameters, param[0], value=ast.literal_eval(param[1], parse_path=parse_path, separator=separator))
+
+
+def set_parameter_by_path(parameters:pyqtgraph.parametertree.Parameter, param_path:str, value, parse_path=True, separator=";"):
+    """
+    Set value to parameter.
+    :param param_path: Path to parameter can be separated by ";"
+    :param value:
+    :param parse_path: Turn on separation of path by ";"
+    :return:
+    """
+    logger.debug(f"Set {param_path} to {value}")
+    if parse_path:
+        param_path = param_path.split(separator)
+    fnparam = parameters.param(*param_path)
+    fnparam.setValue(value)
