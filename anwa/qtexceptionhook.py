@@ -27,7 +27,7 @@ def show_exception_box(log_msg):
 
 
 class UncaughtHook(QtCore.QObject):
-    _exception_caught = QtCore.Signal(object)
+    _exception_caught = QtCore.pyqtSignal(object)
 
     def __init__(self, *args, **kwargs):
         super(UncaughtHook, self).__init__(*args, **kwargs)
