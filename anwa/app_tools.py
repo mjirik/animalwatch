@@ -80,17 +80,17 @@ def params_and_values(p:pyqtgraph.parametertree.Parameter, pth=None, dct={}, sep
     return dct
 
 
-def set_parameters_by_path(parameters:pyqtgraph.parametertree.Parameter, plist:List, parse_path=True, separator=";"):
+def set_parameters_by_path(parameters:pyqtgraph.parametertree.Parameter, path_val_couple_list:List, parse_path=True, separator=";"):
     """
     Set value to parameter.
     :param parameters: paramtree.Paramterr
-    :param param_path: list of couple [Path to parameter can be separated by ";", value]
+    :param path_val_couple_list: list of couple [Path to parameter can be separated by ";", value]
     :param value:
     :param parse_path: Turn on separation of path by ";"
     :return:
     """
 
-    for param in plist:
+    for param in path_val_couple_list:
         set_parameter_by_path(parameters, param[0], value=ast.literal_eval(param[1], parse_path=parse_path, separator=separator))
 
 

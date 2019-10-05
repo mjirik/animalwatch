@@ -82,7 +82,7 @@ def gui(params, print_params):
 
 
 def set_params(mainapp, params):
-    app_tools.set_parameter_by_path(mainapp.parameters, params)
+    app_tools.set_parameters_by_path(mainapp.parameters, params)
     # for param in params:
     #     mainapp.set_parameter(param[0], value=ast.literal_eval(param[1]))
 
