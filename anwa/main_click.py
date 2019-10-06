@@ -11,6 +11,7 @@ from pathlib import Path
 import ast
 from . import app_tools
 
+
 # print("start")
 # from . import image
 
@@ -98,7 +99,8 @@ def make_print_params(mainapp):
 def install():
     from .app_tools import create_icon
 
-    create_icon("anwa", conda_env_name="anwa_app")
+    icon_filename = Path(__file__).parent / Path("anwa.ico")
+    create_icon("anwa", icon_filename, conda_env_name="anwa_app")
 
     # print(platform.system)
     # if platform.system() == "Windows":

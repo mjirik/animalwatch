@@ -9,17 +9,24 @@ from typing import List
 import ast
 
 
-def create_icon(
-    app_name: str, conda_env_name=None, icon_filename=None, package_name=None
-):
+def create_icon(app_name: str, icon_filename=None, conda_env_name=None, package_name=None):
+    """
+
+    :param app_name: Used for desktop icon name
+    :param icon_filename: absolute path to icon usually:
+        pathlib.Path(__file__).parent / pathlib.Path("app_icon512.ico")
+    :param conda_env_name: conda environment. The app_name is used if conda_env_name is set to None.
+    :param package_name: in `conda -m 'package_name'` . The app_name is used if conda_env_name is set to None.
+    :return:
+    """
     import platform
 
     # print(platform.system)
     if conda_env_name is None:
         conda_env_name = app_name
 
-    if icon_filename is None:
-        icon_filename = app_name
+    # if icon_filename is None:
+    #     icon_filename = app_name
 
     if Path(icon_filename).suffix == "":
         icon_filename += ".ico"
@@ -31,7 +38,8 @@ def create_icon(
 
         # logo_fn2 = pathlib.Path(__file__).parent / pathlib.Path("scaffan_icon512.ico")
 
-        logo_fn = op.join(op.dirname(__file__), icon_filename)
+        # logo_fn = op.join(op.dirname(__file__), icon_filename)
+        logo_fn = icon_filename
         import win32com.client
 
         shell = win32com.client.Dispatch("WScript.Shell")
