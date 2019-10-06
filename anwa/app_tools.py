@@ -93,6 +93,10 @@ def set_parameters_by_path(parameters:pyqtgraph.parametertree.Parameter, path_va
     Set value to parameter.
     :param parameters: paramtree.Paramterr
     :param path_val_couple_list: list of couple [Path to parameter can be separated by ";", value]
+    Usually defined by
+    @click.option('--params', '-p', multiple=True, default='', nargs=2,
+                  help='Set parameter. First argument is path to parameter separated by ";". Second is the value.'
+                       'python -m myapp -p Processing;Show True')
     :param value:
     :param parse_path: Turn on separation of path by ";"
     :return:
